@@ -1,0 +1,3026 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCraft | آموزش ساخت بات تلگرام</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & VARIABLES ===== */
+        :root {
+            --bg: #0B0F1C;
+            --bg-raised: #141B2B;
+            --ink: #EDEFF2;
+            --muted: #8892A8;
+            --line: #2A3A5080;
+            --gold: #F2B84B;
+            --gold-dim: #F2B84B22;
+            --blue: #33A9E0;
+            --blue-dim: #33A9E022;
+            --ok: #5FD3A6;
+            --radius: 20px;
+            --shadow: 0 20px 40px -12px #000000CC;
+            --sans: 'Vazirmatn', sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+            --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* ===== GLOBAL ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--sans);
+            line-height: 1.7;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ===== ANIMATED BACKGROUND ===== */
+        .bg-animation {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .bg-animation .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: orbFloat 20s ease-in-out infinite alternate;
+        }
+        .bg-animation .orb:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            background: var(--gold);
+            top: -10%;
+            left: -10%;
+            animation-duration: 25s;
+        }
+        .bg-animation .orb:nth-child(2) {
+            width: 500px;
+            height: 500px;
+            background: var(--blue);
+            bottom: -15%;
+            right: -15%;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+        .bg-animation .orb:nth-child(3) {
+            width: 300px;
+            height: 300px;
+            background: #8B5CF6;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 20s;
+            animation-delay: -10s;
+            opacity: 0.15;
+        }
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -40px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 30px) scale(0.9);
+            }
+            100% {
+                transform: translate(10px, -20px) scale(1.05);
+            }
+        }
+
+        /* ===== HEADER / NAV ===== */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 15, 28, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--line);
+            padding: 12px 0;
+            transition: var(--transition);
+        }
+        nav .wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .logo {
+            font-family: var(--mono);
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .logo .code {
+            color: var(--gold);
+        }
+        .logo .craft {
+            color: var(--ink);
+        }
+        .logo .accent {
+            color: var(--blue);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .nav-links a {
+            padding: 8px 14px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: var(--transition);
+            color: var(--muted);
+        }
+        .nav-links a:hover {
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+        .nav-links .btn-primary {
+            background: var(--gold);
+            color: #0B0F1C;
+            font-weight: 700;
+            padding: 8px 18px;
+            border-radius: 40px;
+            transition: var(--transition);
+        }
+        .nav-links .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 24px var(--gold-dim);
+            background: #f0c45a;
+        }
+        .lang-toggle {
+            background: var(--bg-raised);
+            border: 1px solid var(--line);
+            color: var(--muted);
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-family: var(--mono);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .lang-toggle:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            padding: 60px 0 40px;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+        .hero-text .badge {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--gold);
+            background: var(--gold-dim);
+            padding: 4px 14px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+            border: 1px solid var(--gold);
+            letter-spacing: 0.5px;
+        }
+        .hero-text h1 {
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 18px;
+        }
+        .hero-text h1 .highlight {
+            background: linear-gradient(135deg, var(--gold), #f7d875);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-text p {
+            font-size: 17px;
+            color: var(--muted);
+            max-width: 500px;
+            margin-bottom: 30px;
+        }
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .hero-actions .btn-gold {
+            background: var(--gold);
+            color: #0B0F1C;
+            font-weight: 700;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-size: 15px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hero-actions .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px -8px var(--gold-dim);
+        }
+        .hero-actions .btn-outline {
+            border: 1px solid var(--line);
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hero-actions .btn-outline:hover {
+            border-color: var(--gold);
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+
+        /* ===== HERO VISUAL (Phone mock) ===== */
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .phone-mock {
+            background: linear-gradient(145deg, #1A2538, #0F1624);
+            border: 1px solid var(--line);
+            border-radius: 40px;
+            padding: 18px 12px 12px;
+            max-width: 280px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+        .phone-mock .notch {
+            width: 80px;
+            height: 7px;
+            background: #00000080;
+            border-radius: 10px;
+            margin: 0 auto 14px;
+        }
+        .phone-mock .screen {
+            background: #080C14;
+            border-radius: 24px;
+            padding: 16px;
+            min-height: 260px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .screen .term-line {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--ok);
+        }
+        .screen .term-line .prompt {
+            color: var(--gold);
+        }
+        .screen .bubble {
+            align-self: flex-start;
+            background: #1E2A3E;
+            padding: 8px 12px;
+            border-radius: 12px 12px 12px 3px;
+            font-size: 12px;
+            max-width: 80%;
+            opacity: 0;
+            animation: popIn 0.5s ease forwards;
+        }
+        .screen .bubble.me {
+            align-self: flex-end;
+            background: var(--blue-dim);
+            border-radius: 12px 12px 3px 12px;
+            color: var(--blue);
+        }
+        .screen .bubble:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        .screen .bubble:nth-child(4) {
+            animation-delay: 0.8s;
+        }
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== SECTIONS ===== */
+        section {
+            padding: 60px 0;
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--line);
+        }
+        .section-label {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .section-title {
+            font-size: clamp(26px, 3.5vw, 40px);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .section-desc {
+            color: var(--muted);
+            max-width: 600px;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
+        /* ===== CARDS (for features / steps) ===== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+        }
+        .card {
+            background: var(--bg-raised);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 28px 22px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: var(--gold);
+            box-shadow: 0 12px 30px -12px #00000099;
+        }
+        .card .num {
+            font-family: var(--mono);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gold);
+            opacity: 0.3;
+            position: absolute;
+            top: 12px;
+            right: 18px;
+        }
+        .card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            margin-top: 4px;
+        }
+        .card p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .card .tag {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--ok);
+            background: #5FD3A622;
+            padding: 2px 12px;
+            border-radius: 40px;
+            margin-top: 12px;
+            border: 1px solid #5FD3A644;
+        }
+
+        /* ===== SEARCH ===== */
+        .search-wrap {
+            display: flex;
+            gap: 8px;
+            max-width: 480px;
+            margin: 24px 0 32px;
+            background: var(--bg-raised);
+            border: 1px solid var(--line);
+            border-radius: 60px;
+            padding: 4px 4px 4px 18px;
+            transition: var(--transition);
+        }
+        .search-wrap:focus-within {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px var(--gold-dim);
+        }
+        .search-wrap input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 0;
+            color: var(--ink);
+            font-size: 14px;
+            font-family: var(--sans);
+            outline: none;
+        }
+        .search-wrap input::placeholder {
+            color: var(--muted);
+        }
+        .search-wrap button {
+            background: var(--gold);
+            border: none;
+            border-radius: 40px;
+            padding: 10px 20px;
+            font-weight: 700;
+            color: #0B0F1C;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--sans);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .search-wrap button:hover {
+            background: #f0c45a;
+            transform: scale(1.02);
+        }
+
+        /* ===== ACCOUNT (Login/Signup) ===== */
+        .account-box {
+            background: var(--bg-raised);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 32px;
+            max-width: 420px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .account-box h3 {
+            margin-bottom: 8px;
+        }
+        .account-box p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .account-box .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .account-box .btn-group a {
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        .account-box .btn-login {
+            border: 1px solid var(--blue);
+            color: var(--blue);
+        }
+        .account-box .btn-login:hover {
+            background: var(--blue-dim);
+        }
+        .account-box .btn-signup {
+            background: var(--gold);
+            color: #0B0F1C;
+        }
+        .account-box .btn-signup:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px -8px var(--gold-dim);
+        }
+
+        /* ===== NAV DROPDOWN ===== */
+        .nav-dropdown {
+            position: relative;
+        }
+        .dropdown-trigger .caret {
+            font-size: 10px;
+            display: inline-block;
+            transition: var(--transition);
+        }
+        .nav-dropdown:hover .caret {
+            transform: rotate(180deg);
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            min-width: 260px;
+            background: var(--bg-raised);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            z-index: 200;
+        }
+        .nav-dropdown:hover .dropdown-menu {
+            display: flex;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--ink);
+            transition: var(--transition);
+        }
+        .dropdown-item:hover {
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+        .mini-badge {
+            font-size: 10px;
+            padding: 3px 9px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-family: var(--mono);
+        }
+        .mini-badge.free {
+            background: var(--ok)22;
+            color: var(--ok);
+        }
+        .mini-badge.paid {
+            background: var(--gold-dim);
+            color: var(--gold);
+        }
+
+        /* ===== COURSES SECTION ===== */
+        .courses-intro {
+            color: var(--muted);
+            max-width: 640px;
+            margin: 0 0 32px;
+        }
+        .course-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+        .course-tab {
+            background: var(--bg-raised);
+            border: 1px solid var(--line);
+            color: var(--muted);
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--sans);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .course-tab:hover {
+            color: var(--ink);
+            border-color: var(--gold);
+        }
+        .course-tab.active {
+            background: var(--gold);
+            color: #0B0F1C;
+            border-color: var(--gold);
+        }
+        .course-panel {
+            display: none;
+        }
+        .course-panel.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .course-panel-head h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .course-panel-head p {
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+        .course-lock-banner {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--gold-dim);
+            border: 1px solid #F2B84B44;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+        }
+        .course-lock-banner span {
+            font-size: 26px;
+        }
+        .course-lock-banner strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .course-lock-banner p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+        .btn-subscribe {
+            margin-right: auto;
+            background: var(--gold);
+            color: #0B0F1C;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: var(--sans);
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+        .btn-subscribe:hover {
+            transform: scale(1.05);
+        }
+        .chapters-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chapter {
+            background: var(--bg-raised);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+        .chapter-head {
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .chapter-head::-webkit-details-marker { display: none; }
+        .chapter-count {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: var(--mono);
+            font-weight: 400;
+        }
+        .lessons-list {
+            padding: 0 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .lesson {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .lesson-head {
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            font-size: 13px;
+        }
+        .lesson-head::-webkit-details-marker { display: none; }
+        .lesson-check {
+            color: var(--ok);
+            font-size: 12px;
+        }
+        .lesson-lock {
+            font-size: 12px;
+        }
+        .lesson-title {
+            flex: 1;
+        }
+        .lesson-arrow {
+            color: var(--gold);
+            font-size: 16px;
+        }
+        .lesson-body {
+            padding: 0 14px 16px 34px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+        .lesson-code {
+            background: #05070E;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-top: 10px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        .lesson-code code {
+            font-family: var(--mono);
+            font-size: 12.5px;
+            color: var(--blue);
+            white-space: pre;
+        }
+        .locked-lesson {
+            cursor: pointer;
+            opacity: 0.6;
+        }
+        .locked-lesson:hover {
+            opacity: 0.85;
+        }
+
+        /* ===== CODE PLAYGROUND ===== */
+        .playground {
+            margin-top: 10px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+            direction: ltr;
+        }
+        .playground-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0E1420;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--line);
+        }
+        .playground-lang {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+        }
+        .btn-run {
+            background: var(--ok);
+            color: #05130D;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: var(--sans);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-run:hover {
+            transform: scale(1.05);
+        }
+        .btn-run:disabled {
+            opacity: 0.5;
+            cursor: wait;
+        }
+        .playground-editor {
+            width: 100%;
+            min-height: 90px;
+            background: #05070E;
+            color: var(--blue);
+            border: none;
+            padding: 12px 14px;
+            font-family: var(--mono);
+            font-size: 12.5px;
+            resize: vertical;
+            outline: none;
+            direction: ltr;
+            text-align: left;
+            line-height: 1.6;
+        }
+        .playground-output {
+            background: #090C14;
+            border-top: 1px solid var(--line);
+            padding: 10px 14px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--ok);
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .playground-output.err {
+            color: #F26B6B;
+        }
+
+        /* ===== SCROLL REVEAL ===== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .reveal.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== AUTH MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: #05070EE0;
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-box {
+            background: var(--bg-raised);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 32px;
+            max-width: 380px;
+            width: 100%;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .modal-close:hover {
+            color: var(--ink);
+        }
+        .modal-box h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .modal-box form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .modal-box input {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            color: var(--ink);
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-family: var(--sans);
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+        }
+        .modal-box input:focus {
+            border-color: var(--gold);
+        }
+        .modal-box .submit-btn {
+            background: var(--gold);
+            color: #0B0F1C;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--sans);
+        }
+        .modal-box .submit-btn:hover {
+            transform: scale(1.02);
+        }
+        .modal-box .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .modal-msg {
+            font-size: 13px;
+            text-align: center;
+            min-height: 18px;
+        }
+        .modal-msg.error { color: #F26B6B; }
+        .modal-msg.ok { color: var(--ok); }
+        .modal-switch {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        .modal-switch a {
+            color: var(--gold);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .user-badge {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        .user-badge.open { display: flex; }
+        .user-badge .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gold-dim);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        .btn-logout {
+            border: 1px solid #F26B6B66;
+            color: #F26B6B;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: none;
+            font-family: var(--sans);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 40px 0 60px;
+            border-top: 1px solid var(--line);
+            position: relative;
+            z-index: 1;
+        }
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .footer-grid .brand {
+            font-family: var(--mono);
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .footer-grid .brand span {
+            color: var(--gold);
+        }
+        .footer-grid .links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .footer-grid .links a {
+            color: var(--muted);
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        .footer-grid .links a:hover {
+            color: var(--gold);
+        }
+        .footer-bottom {
+            margin-top: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            border-top: 1px solid var(--line);
+            padding-top: 20px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+                text-align: center;
+            }
+            .hero-text p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-actions {
+                justify-content: center;
+            }
+            .nav-links a {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            .logo {
+                font-size: 18px;
+            }
+            .search-wrap {
+                max-width: 100%;
+            }
+            .phone-mock {
+                max-width: 220px;
+            }
+            .footer-grid {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .dropdown-menu {
+                position: static;
+                width: 100%;
+                box-shadow: none;
+                margin-top: 6px;
+            }
+            .nav-dropdown:hover .dropdown-menu {
+                display: none;
+            }
+            .nav-dropdown.open .dropdown-menu {
+                display: flex;
+            }
+            .course-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 6px;
+            }
+            .course-tab {
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            .course-lock-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+            .btn-subscribe {
+                margin-right: 0;
+            }
+            .lesson-body {
+                padding-right: 14px;
+            }
+            .playground-editor {
+                font-size: 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .wrap {
+                padding: 0 16px;
+            }
+            .hero-text h1 {
+                font-size: 28px;
+            }
+            .card {
+                padding: 20px;
+            }
+            .account-box {
+                padding: 20px;
+            }
+        }
+
+        /* ===== UTILITY ===== */
+        .text-center {
+            text-align: center;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mt-32 {
+            margin-top: 32px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+
+        /* ===== PLACEHOLDER FOR BACKGROUND IMAGE ===== */
+        /*
+        /* BACKGROUND_IMAGE */
+        /* برای جایگزینی عکس پس‌زمینه، لینک عکس خود را در آدرس زیر قرار دهید */
+        /* سپس کامنت‌های این بخش را بردارید */
+        /*
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: url('https://your-image-url.jpg') center/cover no-repeat;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        */
+    </style>
+</head>
+<body>
+
+    <!-- ===== ANIMATED BACKGROUND ORBS ===== -->
+    <div class="bg-animation">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav>
+        <div class="wrap">
+            <div class="logo">
+                <span class="code">&lt;/&gt;</span>
+                <span class="code">Code</span><span class="craft">Craft</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">امکانات</a>
+                <div class="nav-dropdown">
+                    <a href="#courses" class="dropdown-trigger">دوره‌ها <span class="caret">▾</span></a>
+                    <div class="dropdown-menu" id="coursesDropdown"></div>
+                </div>
+                <a href="#faq">سوالات</a>
+                <a href="#account" class="btn-primary">حساب کاربری</a>
+                <button class="lang-toggle" id="langToggle" onclick="toggleLang()">🇬🇧 EN</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <header class="hero">
+        <div class="wrap">
+            <div class="hero-grid">
+                <div class="hero-text">
+                    <div class="badge">✨ فقط با گوشی اندروید</div>
+                    <h1>
+                        یه بات تلگرام واقعی بساز،
+                        <span class="highlight">بدون لپ‌تاپ و بدون سرور</span>
+                    </h1>
+                    <p data-i18n="hero-desc">قدم‌به‌قدم یاد بگیر چطور با همون گوشی که الان دستته، یه بات تلگرام کامل بنویسی، اجرا کنی و ۲۴ ساعته روشن نگه داری — دقیقاً همون مسیری که من رفتم.</p>
+                    <div class="hero-actions">
+                        <a href="https://t.me/taskmanagerx2026bot" target="_blank" class="btn-gold">🤖 امتحان کن</a>
+                        <a href="https://t.me/aryan_tech_lab" target="_blank" class="btn-outline">📚 کانال آموزشی</a>
+                    </div>
+                    <!-- SEARCH -->
+                    <div class="search-wrap">
+                        <input type="text" placeholder="جستجو در سایت ..." id="searchInput">
+                        <button onclick="searchSite()">🔍 جستجو</button>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="phone-mock">
+                        <div class="notch"></div>
+                        <div class="screen">
+                            <div class="term-line"><span class="prompt">~$</span> pkg install python</div>
+                            <div class="term-line" style="color:#5A6B80;">Installing... done ✓</div>
+                            <div class="bubble me">سلام، فعالی؟</div>
+                            <div class="bubble">بله! من یه بات هستم که روی گوشی خودت اجرا شدم 🤖</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== FEATURES / WHY ===== -->
+    <section id="features">
+        <div class="wrap">
+            <div class="section-label">چالش</div>
+            <h2 class="section-title">چرا این پروژه رو ساختم؟</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="num">✕</div>
+                    <h3>دسترسی محدود</h3>
+                    <p>خیلیا لپ‌تاپ ندارن یا لپ‌تاپشون برای برنامه‌نویسی ضعیفه.</p>
+                </div>
+                <div class="card">
+                    <div class="num">✕</div>
+                    <h3>هزینه سرور</h3>
+                    <p>بیشتر مردم فکر می‌کنن برای بات تلگرام حتماً باید سرور بخرن.</p>
+                </div>
+                <div class="card">
+                    <div class="num">✕</div>
+                    <h3>آموزش‌های پیچیده</h3>
+                    <p>آموزش‌های موجود همه فرض می‌کنن روی کامپیوتر کار می‌کنی.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+    <!-- ===== COURSES (آموزش‌ها) ===== -->
+    <section id="courses">
+        <div class="wrap">
+            <div class="section-label">آموزش‌ها</div>
+            <h2 class="section-title">از صفر تا صد، فصل به فصل</h2>
+            <p class="courses-intro">شش دوره کامل — لینوکس، پایتون، HTML، CSS و جاوااسکریپت. هر دوره به فصل و درس تقسیم شده تا قدم‌به‌قدم پیش بری.</p>
+
+            <div class="course-tabs">
+                <button class="course-tab active" data-course="linux-basic" onclick="switchCourseTab('linux-basic')">لینوکس مقدماتی</button>
+<button class="course-tab" data-course="linux-advanced" onclick="switchCourseTab('linux-advanced')">🔒 لینوکس پیشرفته</button>
+<button class="course-tab" data-course="python" onclick="switchCourseTab('python')">پایتون صفر تا صد</button>
+<button class="course-tab" data-course="html" onclick="switchCourseTab('html')">HTML از صفر</button>
+<button class="course-tab" data-course="css" onclick="switchCourseTab('css')">CSS از صفر</button>
+<button class="course-tab" data-course="javascript" onclick="switchCourseTab('javascript')">جاوااسکریپت از صفر</button>
+            </div>
+
+            <div class="course-panels">
+                
+        <div class="course-panel active" id="course-linux-basic">
+            <div class="course-panel-head">
+                <h3>لینوکس مقدماتی <span class="mini-badge free">رایگان</span></h3>
+                <p>از صفر با ترموکس و خط فرمان آشنا شو تا آماده نوشتن اولین بات بشی.</p>
+            </div>
+            
+            <div class="chapters-list">
+                
+            <details class="chapter" open>
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۱ — آشنایی با لینوکس و Termux</span>
+                    <span class="chapter-count">3 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">لینوکس چیه و چرا برای بات‌سازی لازمشه؟</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>لینوکس یه سیستم‌عامل متن‌بازه که اکثر سرورهای دنیا (و از جمله سرورهایی که بات‌های تلگرام روشون اجرا می‌شن) روی اون کار می‌کنن. برخلاف ویندوز که بیشتر با کلیک و ماوس کار می‌کنی، توی لینوکس اکثر کارها با تایپ دستور توی یه پنجره به اسم «ترمینال» انجام می‌شه. یاد گرفتن لینوکس یعنی یاد گرفتن زبان مشترک تقریباً همه‌ی سرورها و ابزارهای برنامه‌نویسی — و چون گوشی اندروید هم هسته‌ش لینوکسه، می‌تونیم بدون هیچ سروری، مستقیم روی گوشی یه محیط لینوکسی کامل داشته باشیم.</p>
+                        
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">نصب Termux روی اندروید</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>Termux یه اپلیکیشن رایگانه که یه محیط لینوکسی کامل رو داخل گوشی اندرویدت شبیه‌سازی می‌کنه، بدون نیاز به روت کردن گوشی. بهترین راه نصب، دانلود از F-Droid یا مستقیم از گیت‌هاب پروژه‌ست (نسخه‌ی گوگل‌پلی قدیمی و به‌روزرسانی نشده‌ست). بعد از نصب و باز کردن اپ، اولین کاری که باید بکنی به‌روزرسانی لیست پکیج‌هاست:</p>
+                        <pre class="lesson-code"><code>pkg update &amp;&amp; pkg upgrade -y</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">اولین دستورات: ls، cd، pwd</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>سه تا دستور پایه که همیشه ازشون استفاده می‌کنی: pwd مسیر فعلی‌ای که توش هستی رو نشون می‌ده، ls محتوای همون پوشه رو لیست می‌کنه، و cd به پوشه‌ی دیگه‌ای می‌ره. مثلاً:</p>
+                        <pre class="lesson-code"><code>pwd
+ls
+cd storage/downloads
+ls -la   # نمایش فایل‌های مخفی هم</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۲ — دستورات پایه ترمینال</span>
+                    <span class="chapter-count">3 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">ساخت، کپی و حذف فایل و پوشه</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>برای کار روزمره با فایل‌ها چهار دستور کلیدی کافیه: mkdir برای ساخت پوشه، touch برای ساخت فایل خالی، cp برای کپی، و rm برای حذف. با پرچم -r می‌تونی این کارها رو روی پوشه‌ها (و محتویاتشون) هم انجام بدی.</p>
+                        <pre class="lesson-code"><code>mkdir my_bot
+touch my_bot/bot.py
+cp my_bot/bot.py my_bot/bot_backup.py
+rm my_bot/bot_backup.py
+rm -r my_bot   # حذف کل پوشه، با احتیاط!</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">نصب برنامه با pkg</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>Termux از مدیر پکیج خودش به اسم pkg استفاده می‌کنه که در واقع روی apt (همون سیستم دبیان/اوبونتو) نشسته. برای نصب هر ابزاری کافیه بنویسی pkg install اسم‌ابزار. مثلاً برای نصب گیت:</p>
+                        <pre class="lesson-code"><code>pkg install git -y
+pkg list-installed   # دیدن چی نصب کردی</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">ویرایشگر متن nano</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>nano یه ویرایشگر متن ساده و سبکه که مستقیم توی ترمینال کار می‌کنه — برای شروع خیلی راحت‌تر از vim یا emacs هست. با nano اسم‌فایل بازش می‌کنی، متن رو می‌نویسی، و با Ctrl+O ذخیره و Ctrl+X خارج می‌شی.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۳ — مدیریت فایل و پوشه پیشرفته‌تر</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">مسیرهای مطلق و نسبی</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>مسیر مطلق از ریشه‌ی سیستم شروع می‌شه (مثلاً /data/data/com.termux/files/home) و همیشه یکسانه، فارغ از اینکه الان کجا هستی. مسیر نسبی به موقعیت فعلیت بستگی داره؛ مثلاً ../ یعنی برو یه پوشه بالاتر. دونستن این تفاوت باعث می‌شه اسکریپت‌هات روی هر دستگاهی درست کار کنن.</p>
+                        
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">دسترسی به حافظه گوشی</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>برای اینکه Termux به پوشه‌ی Download و بقیه‌ی حافظه‌ی گوشیت دسترسی داشته باشه، باید یه بار این دستور رو بزنی و اجازه‌ی دسترسی به فایل‌ها رو بدی:</p>
+                        <pre class="lesson-code"><code>termux-setup-storage</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۴ — آماده‌سازی محیط برای بات‌نویسی</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">نصب پایتون و pip</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>پایتون رو با یک خط دستور نصب می‌کنیم؛ pip هم به‌صورت خودکار همراهش نصب می‌شه و برای نصب کتابخونه‌های پایتون ازش استفاده خواهیم کرد.</p>
+                        <pre class="lesson-code"><code>pkg install python -y
+python --version
+pip --version</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">نصب یک ویرایشگر کد (اختیاری)</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>می‌تونی همون nano رو برای نوشتن کدهای کوتاه استفاده کنی، یا اپ‌هایی مثل Acode رو نصب کنی که هایلایت رنگی کد و امکانات بیشتری دارن و مستقیم با پوشه‌ی Termux هم هماهنگ می‌شن.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۵ — مدیریت پکیج‌ها و مخازن</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">جست‌وجو و حذف پکیج</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>برای پیدا کردن اسم دقیق یه پکیج از pkg search استفاده می‌کنی، و برای حذف یه برنامه‌ی نصب‌شده از pkg uninstall.</p>
+                        <pre class="lesson-code"><code>pkg search ffmpeg
+pkg uninstall ffmpeg -y</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">به‌روزرسانی خودکار مخازن</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>هر از گاهی لیست مخازن Termux تغییر می‌کنه (مثلاً آدرس سرورها عوض می‌شه). دستور termux-change-repo بهت اجازه می‌ده سریع‌ترین مخزن رو انتخاب کنی و مشکلات دانلود کند رو حل کنی.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۶ — متغیرهای محیطی و PATH</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">متغیر محیطی چیست؟</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>متغیر محیطی مقداریه که سیستم‌عامل و برنامه‌ها می‌تونن بهش دسترسی داشته باشن، مثل مسیر پوشه‌ی خانگی یا زبان سیستم. با echo $HOME می‌تونی مقدار یه متغیر رو ببینی.</p>
+                        <pre class="lesson-code"><code>echo $HOME
+export MY_NAME="Ali"
+echo $MY_NAME</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">PATH چیست و چرا مهمه؟</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>PATH لیستی از پوشه‌هاست که سیستم توشون دنبال برنامه‌ی اجرایی می‌گرده. وقتی می‌نویسی python، سیستم توی همه‌ی پوشه‌های داخل PATH دنبال فایل اجرایی python می‌گرده تا پیداش کنه.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۷ — لوله‌ها و ریدایرکت‌ها</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">ریدایرکت خروجی با &gt; و &gt;&gt;</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>با &gt; می‌تونی خروجی یه دستور رو به‌جای نمایش روی صفحه، توی یه فایل ذخیره کنی؛ &gt;&gt; هم همین کارو می‌کنه ولی به‌جای بازنویسی، به انتهای فایل اضافه می‌کنه.</p>
+                        <pre class="lesson-code"><code>echo "سلام" &gt; note.txt
+echo "خط دوم" &gt;&gt; note.txt
+cat note.txt</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">لوله (pipe) با |</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>علامت | خروجی یه دستور رو مستقیم به‌عنوان ورودی دستور بعدی می‌فرسته. این یکی از قدرتمندترین ایده‌های خط فرمان لینوکسه چون بهت اجازه می‌ده چند دستور ساده رو زنجیر کنی.</p>
+                        <pre class="lesson-code"><code>ls -la | grep ".py"</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            </div>
+        </div>
+
+        <div class="course-panel" id="course-linux-advanced">
+            <div class="course-panel-head">
+                <h3>لینوکس پیشرفته <span class="mini-badge paid">اشتراک ویژه</span></h3>
+                <p>اجرای ۲۴ ساعته، شبکه، اسکریپت‌نویسی Bash و امنیت — برای کسایی که می‌خوان بات رو حرفه‌ای اجرا کنن.</p>
+            </div>
+            
+            <div class="course-lock-banner">
+                <span>🔒</span>
+                <div>
+                    <strong>این دوره ویژه اعضای اشتراک ویژه است.</strong>
+                    <p>برای دسترسی به محتوای کامل این دوره باید اشتراک تهیه کنی.</p>
+                </div>
+                <button class="btn-subscribe" onclick="showLockMsg()">خرید اشتراک</button>
+            </div>
+            <div class="chapters-list">
+                
+            <details class="chapter" open>
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۱ — اجرای دائمی با tmux و screen</span>
+                    <span class="chapter-count">3 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">چرا بات با بستن ترمینال قطع می‌شه؟</span>
+                    </div>
+                </div>
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">ساخت و مدیریت session با tmux</span>
+                    </div>
+                </div>
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">اجرای خودکار بات بعد از ری‌استارت گوشی</span>
+                    </div>
+                </div>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۲ — شبکه و SSH</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">اتصال به گوشی از راه دور با SSH</span>
+                    </div>
+                </div>
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">انتقال فایل با scp و rsync</span>
+                    </div>
+                </div>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۳ — اسکریپت‌نویسی Bash پیشرفته</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">متغیر، شرط و حلقه در Bash</span>
+                    </div>
+                </div>
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">ساخت اسکریپت پشتیبان‌گیری خودکار</span>
+                    </div>
+                </div>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۴ — امنیت پایه</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">مدیریت کلید و توکن به‌صورت امن</span>
+                    </div>
+                </div>
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">جلوگیری از دسترسی غیرمجاز</span>
+                    </div>
+                </div>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۵ — کران‌جاب و زمان‌بندی وظایف</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">آشنایی با crontab</span>
+                    </div>
+                </div>
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">زمان‌بندی ری‌استارت خودکار بات</span>
+                    </div>
+                </div>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۶ — کانتینر و Docker روی موبایل</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">مفهوم کانتینر چیست؟</span>
+                    </div>
+                </div>
+                <div class="lesson locked-lesson" onclick="showLockMsg()">
+                    <div class="lesson-head">
+                        <span class="lesson-lock">🔒</span>
+                        <span class="lesson-title">اجرای سرویس‌ها با proot-distro</span>
+                    </div>
+                </div>
+                </div>
+            </details>
+            </div>
+        </div>
+
+        <div class="course-panel" id="course-python">
+            <div class="course-panel-head">
+                <h3>پایتون صفر تا صد <span class="mini-badge free">رایگان</span></h3>
+                <p>از اولین خط کد تا ساخت بات تلگرام واقعی با کتابخونه‌ی python-telegram-bot.</p>
+            </div>
+            
+            <div class="chapters-list">
+                
+            <details class="chapter" open>
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۱ — شروع کار</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">اولین برنامه: Hello World</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>سنت هر زبان برنامه‌نویسی اینه که اولین برنامه، یه پیام ساده چاپ کنه. توی پایتون این کار با تابع print() انجام می‌شه:</p>
+                        
+                    <div class="playground" data-lang="python">
+                        <div class="playground-bar">
+                            <span class="playground-lang">🐍 Python</span>
+                            <button class="btn-run" onclick="runCode(event, 'python-0-0', 'python')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-python-0-0" spellcheck="false">print("سلام دنیا!")</textarea>
+                        <div class="playground-output" id="output-python-0-0" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">اجرای فایل پایتون</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>کد رو توی فایلی با پسوند py. ذخیره کن (مثلاً hello.py) و توی ترمینال با این دستور اجراش کن:</p>
+                        <pre class="lesson-code"><code>python hello.py</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۲ — متغیرها و انواع داده</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">متغیر چیست؟</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>متغیر یه اسمه که به یه مقدار توی حافظه اشاره می‌کنه. توی پایتون لازم نیست نوع متغیر رو از قبل مشخص کنی؛ خودش تشخیص می‌ده.</p>
+                        
+                    <div class="playground" data-lang="python">
+                        <div class="playground-bar">
+                            <span class="playground-lang">🐍 Python</span>
+                            <button class="btn-run" onclick="runCode(event, 'python-1-0', 'python')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-python-1-0" spellcheck="false">name = "علی"
+age = 20
+is_admin = True</textarea>
+                        <div class="playground-output" id="output-python-1-0" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">رشته، عدد و بولین</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>سه نوع داده‌ی پرکاربرد: str برای متن (بین گیومه)، int/float برای عدد صحیح و اعشاری، و bool که فقط True یا False می‌گیره. تابع type() نوع هر متغیر رو بهت نشون می‌ده.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۳ — شرط و حلقه</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">دستور شرطی if / elif / else</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>با if می‌تونی بگی «اگه فلان شرط برقرار بود، این کارو بکن». elif یعنی «وگرنه اگه»، و else یعنی «در غیر این صورت».</p>
+                        
+                    <div class="playground" data-lang="python">
+                        <div class="playground-bar">
+                            <span class="playground-lang">🐍 Python</span>
+                            <button class="btn-run" onclick="runCode(event, 'python-2-0', 'python')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-python-2-0" spellcheck="false">score = 75
+if score &gt;= 90:
+    print("عالی")
+elif score &gt;= 60:
+    print("قبول")
+else:
+    print("مردود")</textarea>
+                        <div class="playground-output" id="output-python-2-0" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">حلقه‌های for و while</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>حلقه برای تکرار یه کار استفاده می‌شه. for روی یه دنباله (مثل لیست یا بازه‌ی اعداد) پیمایش می‌کنه، while تا وقتی شرطی برقراره تکرار می‌شه.</p>
+                        
+                    <div class="playground" data-lang="python">
+                        <div class="playground-bar">
+                            <span class="playground-lang">🐍 Python</span>
+                            <button class="btn-run" onclick="runCode(event, 'python-2-1', 'python')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-python-2-1" spellcheck="false">for i in range(5):
+    print("شماره", i)
+
+count = 0
+while count &lt; 3:
+    print("در حال اجرا")
+    count += 1</textarea>
+                        <div class="playground-output" id="output-python-2-1" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۴ — توابع و ماژول‌ها</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">نوشتن تابع با def</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>تابع یه بلوک کد قابل‌استفاده‌ی مجدده. با def تعریفش می‌کنی و با return مقدار خروجی رو برمی‌گردونی.</p>
+                        
+                    <div class="playground" data-lang="python">
+                        <div class="playground-bar">
+                            <span class="playground-lang">🐍 Python</span>
+                            <button class="btn-run" onclick="runCode(event, 'python-3-0', 'python')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-python-3-0" spellcheck="false">def greet(name):
+    return f"سلام {name}!"
+
+print(greet("سارا"))</textarea>
+                        <div class="playground-output" id="output-python-3-0" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">وارد کردن ماژول‌ها با import</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>پایتون کتابخونه‌های آماده‌ی زیادی داره. با import می‌تونی ازشون توی برنامه‌ت استفاده کنی، مثلاً ماژول random برای تولید عدد تصادفی.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۵ — ساخت اولین بات تلگرام</span>
+                    <span class="chapter-count">3 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">نصب python-telegram-bot</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>این کتابخونه محبوب‌ترین ابزار پایتونی برای ساخت بات تلگرامه. نصبش با pip خیلی ساده‌ست:</p>
+                        <pre class="lesson-code"><code>pip install python-telegram-bot --upgrade</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">گرفتن توکن از BotFather</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>برای ساخت بات باید با اکانت @BotFather توی تلگرام چت کنی، دستور /newbot رو بزنی، یه اسم و یوزرنیم انتخاب کنی، و در نهایت یه توکن مخصوص بات خودت بگیری. این توکن رو هیچ‌وقت جایی عمومی منتشر نکن.</p>
+                        
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">نوشتن دستور /start</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>با چند خط کد می‌تونی اولین دستور بات رو بسازی که به /start جواب بده:</p>
+                        <pre class="lesson-code"><code>from telegram.ext import Application, CommandHandler
+
+async def start(update, context):
+    await update.message.reply_text("سلام! من فعالم 🤖")
+
+app = Application.builder().token("TOKEN_خودت").build()
+app.add_handler(CommandHandler("start", start))
+app.run_polling()</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۶ — لیست، دیکشنری و ساختارهای داده</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">کار با لیست‌ها</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>لیست یه مجموعه‌ی مرتب از مقادیره که می‌تونی بهش اضافه کنی، ازش حذف کنی و با اندیس بهش دسترسی داشته باشی.</p>
+                        
+                    <div class="playground" data-lang="python">
+                        <div class="playground-bar">
+                            <span class="playground-lang">🐍 Python</span>
+                            <button class="btn-run" onclick="runCode(event, 'python-5-0', 'python')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-python-5-0" spellcheck="false">users = ["علی", "سارا"]
+users.append("رضا")
+print(users[0])   # علی
+print(len(users)) # 3</textarea>
+                        <div class="playground-output" id="output-python-5-0" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">کار با دیکشنری</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>دیکشنری داده رو به‌صورت کلید-مقدار نگه می‌داره؛ برای ذخیره‌ی اطلاعات کاربرهای بات (مثل شناسه و سهمیه) خیلی کاربردیه.</p>
+                        
+                    <div class="playground" data-lang="python">
+                        <div class="playground-bar">
+                            <span class="playground-lang">🐍 Python</span>
+                            <button class="btn-run" onclick="runCode(event, 'python-5-1', 'python')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-python-5-1" spellcheck="false">user_data = {"id": 123, "name": "علی", "quota": 10}
+print(user_data["name"])
+user_data["quota"] -= 1</textarea>
+                        <div class="playground-output" id="output-python-5-1" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۷ — کار با فایل و ذخیره‌سازی داده</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">خواندن و نوشتن فایل متنی</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>با تابع open می‌تونی فایل رو باز کنی. استفاده از with باعث می‌شه فایل بعد از کار خودکار بسته بشه.</p>
+                        <pre class="lesson-code"><code>with open("users.txt", "a") as f:
+    f.write("کاربر جدید\n")
+
+with open("users.txt") as f:
+    print(f.read())</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">ذخیره‌ی داده‌ی ساخت‌یافته با JSON</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>برای ذخیره‌ی دیکشنری یا لیست به شکل قابل‌خوندن و بازیابی، از ماژول json استفاده می‌کنیم. این روش برای نگه‌داشتن اطلاعات کاربرهای بات بین اجراهای مختلف خیلی رایجه.</p>
+                        <pre class="lesson-code"><code>import json
+data = {"users": ["علی", "سارا"]}
+with open("data.json", "w") as f:
+    json.dump(data, f, ensure_ascii=False)</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۸ — مدیریت خطا و اشکال‌زدایی</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">گرفتن خطا با try/except</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>وقتی احتمال داره یه بخش از کد خطا بده (مثلاً کاربر عدد وارد نکنه)، با try/except می‌تونی جلوی کرش کردن کل برنامه رو بگیری.</p>
+                        <pre class="lesson-code"><code>try:
+    age = int(input("سنت چنده؟ "))
+except ValueError:
+    print("لطفاً فقط عدد وارد کن")</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">چاپ خطا برای دیباگ</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>موقع توسعه‌ی بات، خوندن پیام خطای کامل (traceback) کمک می‌کنه بفهمی دقیقاً کجای کد مشکل داره. هیچ‌وقت خطاها رو کامل قایم نکن؛ حداقل توی لاگ چاپشون کن.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            </div>
+        </div>
+
+        <div class="course-panel" id="course-html">
+            <div class="course-panel-head">
+                <h3>HTML از صفر <span class="mini-badge free">رایگان</span></h3>
+                <p>ساختار وب رو یاد بگیر: تگ‌ها، فرم‌ها و صفحه‌ی اول خودت.</p>
+            </div>
+            
+            <div class="chapters-list">
+                
+            <details class="chapter" open>
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۱ — ساختار پایه یک صفحه</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">اسکلت اصلی HTML</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>هر صفحه‌ی HTML با یه ساختار ثابت شروع می‌شه: doctype، تگ html، head برای اطلاعات پشت‌صحنه، و body برای محتوایی که کاربر می‌بینه.</p>
+                        <pre class="lesson-code"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;صفحه من&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;سلام دنیا&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">تگ‌های سرتیتر و پاراگراف</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>از h1 تا h6 برای تیترها (h1 بزرگ‌ترین) و p برای پاراگراف متن استفاده می‌شه.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۲ — تگ‌های پرکاربرد</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">لینک و تصویر</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>تگ a برای ساخت لینک و img برای نمایش تصویره. هر دو از ویژگی‌هایی مثل href و src استفاده می‌کنن که مقصد یا منبع رو مشخص می‌کنن.</p>
+                        <pre class="lesson-code"><code>&lt;a href="https://example.com"&gt;برو به سایت&lt;/a&gt;
+&lt;img src="pic.jpg" alt="توضیح تصویر"&gt;</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">لیست‌ها و جدول‌ها</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>ul برای لیست بدون شماره و ol برای لیست شماره‌دار به کار می‌ره، هر آیتم داخل li قرار می‌گیره. جدول‌ها هم با table، tr (سطر) و td (ستون) ساخته می‌شن.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۳ — فرم‌ها</span>
+                    <span class="chapter-count">1 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">ساخت فرم و input</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>تگ form محل قرارگیری فیلدهای ورودیه. تگ input انواع مختلفی داره: text، email، password، checkbox و ...</p>
+                        <pre class="lesson-code"><code>&lt;form&gt;
+  &lt;input type="text" placeholder="نام"&gt;
+  &lt;input type="email" placeholder="ایمیل"&gt;
+  &lt;button type="submit"&gt;ارسال&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۴ — معنایی‌سازی صفحه (Semantic HTML)</span>
+                    <span class="chapter-count">1 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">چرا فقط div کافی نیست؟</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>تگ‌های معنایی مثل header، nav، main، section و footer به مرورگر و موتورهای جست‌وجو می‌گن هر بخش از صفحه چه نقشی داره؛ این هم برای SEO خوبه و هم صفحه رو برای صفحه‌خوان‌های نابینایان قابل‌فهم‌تر می‌کنه.</p>
+                        <pre class="lesson-code"><code>&lt;header&gt;...&lt;/header&gt;
+&lt;nav&gt;...&lt;/nav&gt;
+&lt;main&gt;
+  &lt;section&gt;...&lt;/section&gt;
+&lt;/main&gt;
+&lt;footer&gt;...&lt;/footer&gt;</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۵ — اتصال HTML به CSS و JavaScript</span>
+                    <span class="chapter-count">1 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">لینک کردن فایل CSS و JS خارجی</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>برای یه پروژه‌ی واقعی، بهتره CSS و JS رو توی فایل جدا بنویسی و با تگ link و script بهشون وصل بشی؛ این کار کد رو تمیزتر و قابل‌نگهداری‌تر می‌کنه.</p>
+                        <pre class="lesson-code"><code>&lt;link rel="stylesheet" href="style.css"&gt;
+&lt;script src="script.js"&gt;&lt;/script&gt;</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            </div>
+        </div>
+
+        <div class="course-panel" id="course-css">
+            <div class="course-panel-head">
+                <h3>CSS از صفر <span class="mini-badge free">رایگان</span></h3>
+                <p>رنگ، فاصله‌گذاری، فلکس‌باکس و گرید — طراحی صفحه‌ی خودت رو یاد بگیر.</p>
+            </div>
+            
+            <div class="chapters-list">
+                
+            <details class="chapter" open>
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۱ — مقدمات استایل‌دهی</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">سه روش نوشتن CSS</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>می‌تونی استایل رو inline (داخل خود تگ)، internal (داخل تگ style توی head) یا external (فایل جدای css.) بنویسی. روش external برای پروژه‌های واقعی بهترینه چون کد رو تمیز نگه می‌داره.</p>
+                        
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">سلکتورها</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>سلکتور مشخص می‌کنه استایل روی کدوم عنصر اعمال بشه: با تگ (p)، با کلاس (.title.) یا با آیدی (#header.).</p>
+                        <pre class="lesson-code"><code>p { color: gray; }
+.title { font-weight: bold; }
+#header { background: black; }</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۲ — باکس مدل</span>
+                    <span class="chapter-count">1 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">margin، padding و border</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>هر عنصر HTML مثل یه جعبه‌ست: padding فاصله‌ی داخلی بین محتوا و لبه‌ست، border خط دور جعبه‌ست، و margin فاصله‌ی بیرون جعبه با عناصر کناریه.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۳ — فلکس‌باکس و گرید</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">چیدمان با display: flex</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>فلکس‌باکس ساده‌ترین راه برای کنار هم چیدن یا وسط‌چین کردن عناصره. با تنظیم display: flex روی والد، بچه‌هاش به‌صورت افقی (یا عمودی) کنار هم می‌شینن.</p>
+                        <pre class="lesson-code"><code>.container {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">چیدمان با CSS Grid</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>گرید برای چیدمان دو‌بعدی (هم سطر هم ستون) قدرتمندتره؛ برای صفحاتی مثل کارت‌های محصول یا گالری عکس خیلی مناسبه.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۴ — رنگ‌ها، فونت و رسپانسیو</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">واحدهای اندازه: px، %، rem</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>px یه واحد ثابته، % نسبت به والد حساب می‌شه، و rem نسبت به سایز فونت پایه‌ی صفحه‌ست. برای طراحی رسپانسیو معمولاً rem و % بهتر از px عمل می‌کنن.</p>
+                        
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">طراحی رسپانسیو با Media Query</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>با media query می‌تونی استایل متفاوتی برای سایزهای مختلف صفحه (موبایل، تبلت، دسکتاپ) تعریف کنی.</p>
+                        <pre class="lesson-code"><code>@media (max-width: 600px) {
+  .card { flex-direction: column; }
+}</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۵ — انیمیشن و ترنزیشن</span>
+                    <span class="chapter-count">1 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">transition برای حرکت نرم</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>transition باعث می‌شه تغییر یه ویژگی (مثل رنگ یا اندازه) به‌جای پرش ناگهانی، به‌آرومی اتفاق بیفته — دقیقاً همون افکتی که روی دکمه‌های همین سایت می‌بینی.</p>
+                        <pre class="lesson-code"><code>.btn {
+  transition: transform 0.3s ease;
+}
+.btn:hover {
+  transform: scale(1.05);
+}</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            </div>
+        </div>
+
+        <div class="course-panel" id="course-javascript">
+            <div class="course-panel-head">
+                <h3>جاوااسکریپت از صفر <span class="mini-badge free">رایگان</span></h3>
+                <p>صفحه‌ی خودت رو زنده کن: متغیر، تابع، DOM و رویدادها.</p>
+            </div>
+            
+            <div class="chapters-list">
+                
+            <details class="chapter" open>
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۱ — مقدمات و متغیرها</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">let، const و var</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>برای تعریف متغیر امروزه از let (قابل تغییر) و const (ثابت) استفاده می‌شه؛ var قدیمیه و بهتره ازش استفاده نکنی.</p>
+                        
+                    <div class="playground" data-lang="javascript">
+                        <div class="playground-bar">
+                            <span class="playground-lang">⚡ JavaScript</span>
+                            <button class="btn-run" onclick="runCode(event, 'javascript-0-0', 'javascript')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-javascript-0-0" spellcheck="false">let age = 18;
+const name = "رضا";
+age = 19; // مجاز
+// name = "علی"; // خطا می‌ده</textarea>
+                        <div class="playground-output" id="output-javascript-0-0" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">انواع داده در جاوااسکریپت</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>رایج‌ترین نوع‌ها: string (متن)، number (عدد)، boolean (درست/غلط)، array (آرایه) و object (شیء) هستن.</p>
+                        
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۲ — توابع و شرط</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">تعریف تابع</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>تابع رو می‌شه به چند شکل نوشت؛ رایج‌ترین حالت امروزی arrow function هست:</p>
+                        
+                    <div class="playground" data-lang="javascript">
+                        <div class="playground-bar">
+                            <span class="playground-lang">⚡ JavaScript</span>
+                            <button class="btn-run" onclick="runCode(event, 'javascript-1-0', 'javascript')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-javascript-1-0" spellcheck="false">function add(a, b) {
+  return a + b;
+}
+
+const multiply = (a, b) =&gt; a * b;</textarea>
+                        <div class="playground-output" id="output-javascript-1-0" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">شرط if و ternary</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>مثل پایتون، if/else شرط رو بررسی می‌کنه. برای شرط‌های کوتاه هم از عملگر سه‌تایی (?:) استفاده می‌شه.</p>
+                        
+                    <div class="playground" data-lang="javascript">
+                        <div class="playground-bar">
+                            <span class="playground-lang">⚡ JavaScript</span>
+                            <button class="btn-run" onclick="runCode(event, 'javascript-1-1', 'javascript')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-javascript-1-1" spellcheck="false">const status = age &gt;= 18 ? "بزرگسال" : "نوجوان";</textarea>
+                        <div class="playground-output" id="output-javascript-1-1" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۳ — DOM و رویدادها</span>
+                    <span class="chapter-count">2 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">انتخاب عنصر با querySelector</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>برای دسترسی به یه عنصر HTML از جاوااسکریپت، از document.querySelector استفاده می‌کنیم:</p>
+                        <pre class="lesson-code"><code>const btn = document.querySelector('#myButton');</code></pre>
+                    </div>
+                </details>
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">گوش دادن به رویدادها</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>با addEventListener می‌تونی مشخص کنی وقتی کاربر کاری کرد (مثل کلیک) چه اتفاقی بیفته:</p>
+                        <pre class="lesson-code"><code>btn.addEventListener('click', () =&gt; {
+  alert('کلیک شد!');
+});</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۴ — آرایه و متد‌های پرکاربرد</span>
+                    <span class="chapter-count">1 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">کار با آرایه‌ها</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>آرایه یه لیست مرتب از مقادیره. متد‌های map، filter و forEach از پرکاربردترین ابزارها برای کار با آرایه هستن.</p>
+                        
+                    <div class="playground" data-lang="javascript">
+                        <div class="playground-bar">
+                            <span class="playground-lang">⚡ JavaScript</span>
+                            <button class="btn-run" onclick="runCode(event, 'javascript-3-0', 'javascript')">▶ اجرا کن</button>
+                        </div>
+                        <textarea class="playground-editor" id="code-javascript-3-0" spellcheck="false">const nums = [1, 2, 3, 4];
+const doubled = nums.map(n =&gt; n * 2);
+const even = nums.filter(n =&gt; n % 2 === 0);</textarea>
+                        <div class="playground-output" id="output-javascript-3-0" style="display:none;"></div>
+                    </div>
+                    </div>
+                </details>
+                </div>
+            </details>
+            <details class="chapter">
+                <summary class="chapter-head">
+                    <span class="chapter-title">فصل ۵ — فراخوانی API با fetch</span>
+                    <span class="chapter-count">1 درس</span>
+                </summary>
+                <div class="lessons-list">
+                    
+                <details class="lesson">
+                    <summary class="lesson-head">
+                        <span class="lesson-check">✓</span>
+                        <span class="lesson-title">گرفتن داده از یه سرور با fetch</span>
+                        <span class="lesson-arrow">+</span>
+                    </summary>
+                    <div class="lesson-body">
+                        <p>fetch رایج‌ترین روش امروزی برای درخواست دادن به یه API و گرفتن جواب (مثلاً برای پر کردن یه فرم یا نمایش داده‌ی زنده) است.</p>
+                        <pre class="lesson-code"><code>fetch('https://api.example.com/data')
+  .then(res =&gt; res.json())
+  .then(data =&gt; console.log(data));</code></pre>
+                    </div>
+                </details>
+                </div>
+            </details>
+            </div>
+        </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ACCOUNT ===== -->
+    <section id="account">
+        <div class="wrap text-center">
+            <div class="section-label">ورود / ثبت‌نام</div>
+            <h2 class="section-title">به خانواده CodeCraft بپیوندید</h2>
+            <div class="account-box">
+                <h3>🎯 حساب کاربری شما</h3>
+                <p id="accountDesc">با ایجاد حساب، به دوره‌های رایگان و پشتیبانی ویژه دسترسی پیدا می‌کنید.</p>
+                <div class="btn-group" id="authButtons">
+                    <a href="#" class="btn-login" onclick="openModal('login');return false;">ورود</a>
+                    <a href="#" class="btn-signup" onclick="openModal('signup');return false;">ثبت‌نام</a>
+                </div>
+                <div class="user-badge" id="userBadge">
+                    <div class="avatar" id="userAvatar">؟</div>
+                    <div style="text-align:right;">
+                        <div id="userNameDisplay" style="font-weight:700;font-size:14px;"></div>
+                        <div id="userEmailDisplay" style="font-size:12px;color:var(--muted);"></div>
+                    </div>
+                    <button class="btn-logout" onclick="logoutUser()">خروج</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== AUTH MODAL ===== -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeModal()">✕</button>
+            <h3 id="modalTitle">ثبت‌نام</h3>
+            <form id="authForm" onsubmit="return handleAuthSubmit(event)">
+                <input type="text" id="authName" placeholder="نام شما" required>
+                <input type="email" id="authEmail" placeholder="ایمیل" required>
+                <input type="password" id="authPassword" placeholder="رمز عبور (حداقل ۶ کاراکتر)" minlength="6" required>
+                <div class="modal-msg" id="authMsg"></div>
+                <button type="submit" class="submit-btn" id="authSubmitBtn">ثبت‌نام</button>
+            </form>
+            <div class="modal-switch">
+                <span id="modalSwitchText">حساب داری؟</span>
+                <a onclick="switchModalMode()" id="modalSwitchLink">ورود کن</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FAQ ===== -->
+    <section id="faq">
+        <div class="wrap">
+            <div class="section-label">سوالات متداول</div>
+            <h2 class="section-title">پرسش‌های رایج</h2>
+            <div style="display:grid; gap:12px; max-width:700px; margin:0 auto;">
+                <details style="background:var(--bg-raised); border:1px solid var(--line); border-radius:14px; padding:16px 20px;">
+                    <summary style="cursor:pointer; font-weight:700; font-size:15px; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                        چطور بات رو روی گوشی اجرا کردی؟
+                        <span style="color:var(--gold); font-size:20px;">+</span>
+                    </summary>
+                    <p style="margin-top:10px; color:var(--muted);">با استفاده از Termux که یه محیط لینوکسی روی اندرویده. پایتون رو نصب کردم و کد بات رو توش نوشتم.</p>
+                </details>
+                <details style="background:var(--bg-raised); border:1px solid var(--line); border-radius:14px; padding:16px 20px;">
+                    <summary style="cursor:pointer; font-weight:700; font-size:15px; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                        واقعاً بدون سرور کار می‌کنه؟
+                        <span style="color:var(--gold); font-size:20px;">+</span>
+                    </summary>
+                    <p style="margin-top:10px; color:var(--muted);">بله، تا وقتی گوشی روشن و به اینترنت وصله. با tmux حتی وقتی صفحه خاموشه هم کار می‌کنه.</p>
+                </details>
+                <details style="background:var(--bg-raised); border:1px solid var(--line); border-radius:14px; padding:16px 20px;">
+                    <summary style="cursor:pointer; font-weight:700; font-size:15px; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                        آیا می‌تونم خودم هم بسازم؟
+                        <span style="color:var(--gold); font-size:20px;">+</span>
+                    </summary>
+                    <p style="margin-top:10px; color:var(--muted);">کاملاً! این دقیقاً همون چیزیه که من انجام دادم و توی کانال آموزشی قدم‌به‌قدم آموزش دادم.</p>
+                </details>
+                <details style="background:var(--bg-raised); border:1px solid var(--line); border-radius:14px; padding:16px 20px;">
+                    <summary style="cursor:pointer; font-weight:700; font-size:15px; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                        این بات چه قابلیت‌هایی داره؟
+                        <span style="color:var(--gold); font-size:20px;">+</span>
+                    </summary>
+                    <p style="margin-top:10px; color:var(--muted);">الان می‌تونه به دستورات /start، /help، /about و /users پاسخ بده و کاربران رو ذخیره کنه.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+        <div class="wrap">
+            <div class="footer-grid">
+                <div class="brand"><span>&lt;/&gt;</span> Code<span>Craft</span></div>
+                <div class="links">
+                    <a href="https://t.me/taskmanagerx2026bot" target="_blank">🤖 نمونه بات</a>
+                    <a href="https://t.me/aryan_tech_lab" target="_blank">📚 کانال آموزشی</a>
+                    <a href="#account">حساب کاربری</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>ساخته‌شده با ❤️ روی گوشی اندروید — ۲۰۲۶</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== SEARCH =====
+        function searchSite() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                alert('لطفاً عبارت جستجو را وارد کنید.');
+                return;
+            }
+            // Simple search: scroll to sections that contain the query
+            const sections = document.querySelectorAll('section, header');
+            let found = false;
+            for (const section of sections) {
+                const text = section.textContent.toLowerCase();
+                if (text.includes(query.toLowerCase())) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    section.style.transition = 'background 0.6s';
+                    section.style.background = 'var(--gold-dim)';
+                    setTimeout(() => { section.style.background = 'transparent'; }, 1500);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                alert('نتیجه‌ای برای جستجوی شما پیدا نشد.');
+            }
+        }
+
+        // Allow Enter key in search input
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchSite();
+            }
+        });
+
+        // ===== COURSES: TABS =====
+        function switchCourseTab(courseId) {
+            document.querySelectorAll('.course-tab').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.course === courseId);
+            });
+            document.querySelectorAll('.course-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.id === 'course-' + courseId);
+            });
+            // Reveal elements inside the newly active panel immediately (they were hidden via display:none,
+            // so the scroll IntersectionObserver never got a chance to trigger their entrance animation)
+            const activePanel = document.getElementById('course-' + courseId);
+            if (activePanel) {
+                activePanel.querySelectorAll('.reveal').forEach(el => el.classList.add('in-view'));
+            }
+            document.getElementById('courses').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ===== COURSES: LOCKED LESSON → REDIRECT TO TELEGRAM =====
+        function showLockMsg() {
+            window.open('https://t.me/aryan_tech_lab', '_blank');
+        }
+
+        // ===== LIVE CODE EXECUTION =====
+        let pyodideReady = null;
+
+        function loadPyodideOnce() {
+            if (pyodideReady) return pyodideReady;
+            pyodideReady = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js';
+                script.onload = async () => {
+                    try {
+                        const pyodide = await loadPyodide();
+                        resolve(pyodide);
+                    } catch (e) { reject(e); }
+                };
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+            return pyodideReady;
+        }
+
+        async function runCode(evt, uid, lang) {
+            const editor = document.getElementById('code-' + uid);
+            const output = document.getElementById('output-' + uid);
+            const btn = evt.currentTarget;
+            const code = editor.value;
+
+            output.style.display = 'block';
+            output.className = 'playground-output';
+            btn.disabled = true;
+            btn.textContent = '⏳ در حال اجرا...';
+
+            if (lang === 'javascript') {
+                let logs = [];
+                const originalLog = console.log;
+                console.log = (...args) => { logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')); };
+                try {
+                    const result = new Function(code)();
+                    if (result !== undefined) logs.push(String(result));
+                    output.textContent = logs.length ? logs.join('\n') : '(بدون خروجی — از console.log برای دیدن نتیجه استفاده کن)';
+                } catch (err) {
+                    output.textContent = '❌ خطا: ' + err.message;
+                    output.classList.add('err');
+                } finally {
+                    console.log = originalLog;
+                    btn.disabled = false;
+                    btn.textContent = '▶ اجرا کن';
+                }
+            } else if (lang === 'python') {
+                try {
+                    btn.textContent = '⏳ بارگذاری پایتون...';
+                    const pyodide = await loadPyodideOnce();
+                    btn.textContent = '⏳ در حال اجرا...';
+                    let stdout = '';
+                    pyodide.setStdout({ batched: (s) => { stdout += s + '\n'; } });
+                    await pyodide.runPythonAsync(code);
+                    output.textContent = stdout || '(بدون خروجی — از print() برای دیدن نتیجه استفاده کن)';
+                } catch (err) {
+                    output.textContent = '❌ خطا: ' + err.message;
+                    output.classList.add('err');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = '▶ اجرا کن';
+                }
+            }
+        }
+
+        // ===== NAV DROPDOWN: tap-to-toggle on mobile (hover doesn't work on touch) =====
+        document.querySelector('.dropdown-trigger').addEventListener('click', function(e) {
+            if (window.matchMedia('(max-width: 768px)').matches) {
+                e.preventDefault();
+                this.closest('.nav-dropdown').classList.toggle('open');
+            }
+        });
+
+        // ===== SCROLL REVEAL ANIMATIONS =====
+        (function setupReveal() {
+            document.querySelectorAll('.card, .chapter, .course-panel-head').forEach(el => el.classList.add('reveal'));
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        })();
+
+        // ===== NAV: fill dropdown menu from course tabs (keeps single source of truth) =====
+        (function buildDropdown() {
+            const dropdown = document.getElementById('coursesDropdown');
+            const tabs = document.querySelectorAll('.course-tab');
+            tabs.forEach(tab => {
+                const a = document.createElement('a');
+                a.href = '#course-' + tab.dataset.course;
+                a.className = 'dropdown-item';
+                a.innerHTML = tab.innerHTML;
+                a.onclick = (e) => { e.preventDefault(); switchCourseTab(tab.dataset.course); };
+                dropdown.appendChild(a);
+            });
+        })();
+
+        // ===== LANGUAGE TOGGLE (simple demo) =====
+        let lang = 'fa';
+        const toggleBtn = document.getElementById('langToggle');
+
+        function toggleLang() {
+            if (lang === 'fa') {
+                lang = 'en';
+                toggleBtn.textContent = '🇮🇷 FA';
+                document.documentElement.lang = 'en';
+                document.documentElement.dir = 'ltr';
+                // change some texts (demo)
+                document.querySelector('.hero-text .badge').textContent = '✨ Just with Android phone';
+                document.querySelector('.hero-text h1').innerHTML =
+                    'Build a real Telegram bot, <span class="highlight">without laptop & without server</span>';
+                document.querySelector('[data-i18n="hero-desc"]').textContent =
+                    'Step by step, learn how to write, run, and keep a Telegram bot alive 24/7 using the phone in your hand — exactly the path I took.';
+                document.querySelector('.section-label').textContent = 'Challenge';
+                document.querySelector('#features .section-title').textContent = 'Why did I build this project?';
+                // ... (simplified for demo)
+            } else {
+                lang = 'fa';
+                toggleBtn.textContent = '🇬🇧 EN';
+                document.documentElement.lang = 'fa';
+                document.documentElement.dir = 'rtl';
+                location.reload(); // simple reload to reset texts
+            }
+        }
+    </script>
+
+    <!-- ===== AUTH (ثبت‌نام / ورود) — با حالت دمو خودکار اگر Firebase تنظیم نشده باشه ===== -->
+    <script type="module">
+        // >>> این بخش رو با تنظیمات پروژه فایربیس خودت جایگزین کن <<<
+        // Firebase Console > Project settings > Your apps > SDK setup and configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // اگه هنوز مقادیر بالا رو با اطلاعات واقعی عوض نکردی، سایت به‌صورت خودکار
+        // با یه سیستم ورود/ثبت‌نام دمو (ذخیره روی همین مرورگر) کار می‌کنه تا فرم خراب نباشه.
+        // بعد از پر کردن مقادیر بالا با اطلاعات Firebase واقعی‌ات، خودکار میره روی حالت واقعی.
+        const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
+
+        let mode = 'signup'; // 'signup' | 'login'
+        let auth, db, fbAuthFns, fbFsFns;
+
+        if (isConfigured) {
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js");
+            fbAuthFns = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js");
+            fbFsFns = await import("https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js");
+            const app = initializeApp(firebaseConfig);
+            auth = fbAuthFns.getAuth(app);
+            db = fbFsFns.getFirestore(app);
+        } else {
+            console.warn('⚠️ Firebase تنظیم نشده — سایت در حالت دمو (localStorage) کار می‌کنه. برای اتصال واقعی، firebaseConfig رو پر کن.');
+        }
+
+        window.openModal = function(m) {
+            mode = m;
+            updateModalUI();
+            document.getElementById('authMsg').textContent = '';
+            if (!isConfigured) {
+                showMsg('⚠️ حالت دمو: اطلاعات فقط روی همین مرورگر ذخیره می‌شه.', '');
+            }
+            document.getElementById('authModal').classList.add('open');
+        };
+        window.closeModal = function() {
+            document.getElementById('authModal').classList.remove('open');
+        };
+        window.switchModalMode = function() {
+            mode = mode === 'signup' ? 'login' : 'signup';
+            updateModalUI();
+        };
+
+        function updateModalUI() {
+            const nameInput = document.getElementById('authName');
+            if (mode === 'signup') {
+                document.getElementById('modalTitle').textContent = 'ثبت‌نام';
+                document.getElementById('authSubmitBtn').textContent = 'ثبت‌نام';
+                document.getElementById('modalSwitchText').textContent = 'حساب داری؟';
+                document.getElementById('modalSwitchLink').textContent = 'ورود کن';
+                nameInput.style.display = 'block';
+                nameInput.required = true;
+            } else {
+                document.getElementById('modalTitle').textContent = 'ورود';
+                document.getElementById('authSubmitBtn').textContent = 'ورود';
+                document.getElementById('modalSwitchText').textContent = 'حساب نداری؟';
+                document.getElementById('modalSwitchLink').textContent = 'ثبت‌نام کن';
+                nameInput.style.display = 'none';
+                nameInput.required = false;
+            }
+        }
+
+        function showMsg(text, type) {
+            const el = document.getElementById('authMsg');
+            el.textContent = text;
+            el.className = 'modal-msg ' + (type || '');
+        }
+
+        function translateError(code) {
+            const map = {
+                'auth/email-already-in-use': 'این ایمیل قبلاً ثبت‌نام کرده. وارد شو.',
+                'auth/invalid-email': 'فرمت ایمیل درست نیست.',
+                'auth/weak-password': 'رمز عبور خیلی ساده‌ست (حداقل ۶ کاراکتر).',
+                'auth/user-not-found': 'کاربری با این ایمیل پیدا نشد.',
+                'auth/wrong-password': 'رمز عبور اشتباهه.',
+                'auth/invalid-credential': 'ایمیل یا رمز عبور اشتباهه.',
+                'auth/too-many-requests': 'تلاش‌های زیاد ناموفق. کمی صبر کن.',
+                'auth/api-key-not-valid.-please-pass-a-valid-api-key.': 'تنظیمات Firebase هنوز کامل نشده.'
+            };
+            return map[code] || 'خطایی پیش اومد. دوباره تلاش کن.';
+        }
+
+        // ===== حالت دمو (localStorage) =====
+        function demoSignUp(name, email, password) {
+            const users = JSON.parse(localStorage.getItem('cc_demo_users') || '{}');
+            if (users[email]) throw { code: 'auth/email-already-in-use' };
+            if (password.length < 6) throw { code: 'auth/weak-password' };
+            users[email] = { name, email, password };
+            localStorage.setItem('cc_demo_users', JSON.stringify(users));
+            localStorage.setItem('cc_demo_session', email);
+            return { name, email };
+        }
+        function demoLogIn(email, password) {
+            const users = JSON.parse(localStorage.getItem('cc_demo_users') || '{}');
+            const u = users[email];
+            if (!u) throw { code: 'auth/user-not-found' };
+            if (u.password !== password) throw { code: 'auth/wrong-password' };
+            localStorage.setItem('cc_demo_session', email);
+            return u;
+        }
+        function demoLogOut() {
+            localStorage.removeItem('cc_demo_session');
+            renderAuthUI(null);
+        }
+        function demoCurrentUser() {
+            const email = localStorage.getItem('cc_demo_session');
+            if (!email) return null;
+            const users = JSON.parse(localStorage.getItem('cc_demo_users') || '{}');
+            return users[email] || null;
+        }
+
+        window.handleAuthSubmit = function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('authSubmitBtn');
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authName').value.trim();
+
+            btn.disabled = true;
+            showMsg('در حال پردازش...', '');
+
+            if (!isConfigured) {
+                // ===== DEMO MODE =====
+                try {
+                    if (mode === 'signup') {
+                        const u = demoSignUp(name, email, password);
+                        showMsg('ثبت‌نام موفق بود! خوش اومدی 🎉 (حالت دمو)', 'ok');
+                        renderAuthUI(u);
+                    } else {
+                        const u = demoLogIn(email, password);
+                        showMsg('ورود موفق بود! (حالت دمو)', 'ok');
+                        renderAuthUI(u);
+                    }
+                    setTimeout(closeModal, 900);
+                } catch (err) {
+                    showMsg(translateError(err.code), 'error');
+                }
+                btn.disabled = false;
+                return false;
+            }
+
+            // ===== REAL FIREBASE MODE =====
+            const { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } = fbAuthFns;
+            const { doc, setDoc, serverTimestamp } = fbFsFns;
+
+            if (mode === 'signup') {
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then(async (cred) => {
+                        await updateProfile(cred.user, { displayName: name });
+                        await setDoc(doc(db, 'users', cred.user.uid), {
+                            name: name, email: email, createdAt: serverTimestamp()
+                        });
+                        showMsg('ثبت‌نام موفق بود! خوش اومدی 🎉', 'ok');
+                        setTimeout(closeModal, 900);
+                    })
+                    .catch((err) => showMsg(translateError(err.code), 'error'))
+                    .finally(() => { btn.disabled = false; });
+            } else {
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(() => {
+                        showMsg('ورود موفق بود!', 'ok');
+                        setTimeout(closeModal, 700);
+                    })
+                    .catch((err) => showMsg(translateError(err.code), 'error'))
+                    .finally(() => { btn.disabled = false; });
+            }
+            return false;
+        };
+
+        window.logoutUser = function() {
+            if (!isConfigured) { demoLogOut(); return; }
+            fbAuthFns.signOut(auth);
+        };
+
+        function renderAuthUI(user) {
+            const authButtons = document.getElementById('authButtons');
+            const userBadge = document.getElementById('userBadge');
+            const desc = document.getElementById('accountDesc');
+            if (user) {
+                authButtons.style.display = 'none';
+                userBadge.classList.add('open');
+                const displayName = user.displayName || user.name || 'کاربر';
+                document.getElementById('userNameDisplay').textContent = displayName;
+                document.getElementById('userEmailDisplay').textContent = user.email;
+                document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+                desc.textContent = 'خوش اومدی، ' + displayName + '! به دوره‌ها دسترسی داری.';
+            } else {
+                authButtons.style.display = 'flex';
+                userBadge.classList.remove('open');
+                desc.textContent = 'با ایجاد حساب، به دوره‌های رایگان و پشتیبانی ویژه دسترسی پیدا می‌کنید.';
+            }
+        }
+
+        if (isConfigured) {
+            fbAuthFns.onAuthStateChanged(auth, renderAuthUI);
+        } else {
+            renderAuthUI(demoCurrentUser());
+        }
+    </script>
+</body>
+</html>
