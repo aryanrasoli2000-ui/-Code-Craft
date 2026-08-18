@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+<title>SecNote — Security+ Learning &amp; Knowledge Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+:root{
+  --bg:#070b10;
+  --bg-grid: rgba(55,208,196,0.035);
+  --surface:#0d141b;
+  --surface-2:#121c25;
+  --surface-3:#17232d;
+  --border:#1e2c38;
+  --border-soft:#152029;
+  --text:#dfe9ee;
+  --text-dim:#8ea0ac;
+  --text-faint:#5b6e7a;
+  --accent:#37d0c4;
+  --accent-dim:#1f766e;
+  --accent-glow: rgba(55,208,196,0.22);
+  --warn:#e8a33d;
+  --crit:#ef5b5b;
+  --ok:#3ecf8e;
+  --mono: 'JetBrains Mono', monospace;
+  --fa: 'Vazirmatn', sans-serif;
+}
+/* Light theme — toggled via [data-theme="light"] on <html>/<body>. Kept as a
+   pure variable swap so every component that already uses var(--*) works
+   unchanged in both themes. */
+[data-theme="light"]{
+  --bg:#f4f7f9;
+  --bg-grid: rgba(31,118,110,0.05);
+  --surface:#ffffff;
+  --surface-2:#eef2f4;
+  --surface-3:#e3e9ec;
+  --border:#d7dee2;
+  --border-soft:#e4e9ec;
+  --text:#132029;
+  --text-dim:#4d5f68;
+  --text-faint:#7c8a92;
+  --accent:#0f9c90;
+  --accent-dim:#0c7d73;
+  --accent-glow: rgba(15,156,144,0.18);
+  --warn:#b5760f;
+  --crit:#c4433f;
+  --ok:#238a5a;
+}
+[data-theme="light"] .bg-particles{ opacity:.25; }
+[data-theme="light"] .stat-card, [data-theme="light"] .panel, [data-theme="light"] .note-card,
+[data-theme="light"] .quiz-box, [data-theme="light"] .review-card, [data-theme="light"] .modal{
+  background:rgba(255,255,255,.85);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(var(--bg-grid) 1px, transparent 1px) 0 0/100% 28px,
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px) 0 0/28px 100%,
+    radial-gradient(1100px 500px at 85% -10%, rgba(55,208,196,0.08), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--fa);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.ltr{direction:ltr; unicode-bidi:isolate; font-family:var(--mono); letter-spacing:.2px;}
+::selection{background:var(--accent); color:#00201d;}
+::-webkit-scrollbar{width:9px; height:9px;}
+::-webkit-scrollbar-thumb{background:var(--surface-3); border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+button{font-family:inherit; cursor:pointer;}
+input,select,textarea{font-family:inherit; color:var(--text); background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:9px 11px; outline:none; font-size:13.5px; width:100%; transition:border-color .15s, box-shadow .15s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow);}
+textarea{resize:vertical; min-height:64px;}
+label{font-size:12px; color:var(--text-dim); display:block; margin-bottom:5px; font-weight:600;}
+
+.app{display:flex; min-height:100vh;}
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+  width:230px; flex-shrink:0; background:var(--surface); border-left:1px solid var(--border-soft);
+  padding:20px 14px; display:flex; flex-direction:column; gap:4px; position:sticky; top:0; height:100vh;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:6px 8px 22px; border-bottom:1px solid var(--border-soft); margin-bottom:14px;}
+.brand-mark{
+  width:34px; height:34px; border-radius:8px; background:linear-gradient(145deg, var(--accent), var(--accent-dim));
+  display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:800; color:#00201d; font-size:15px;
+  box-shadow:0 0 18px var(--accent-glow);
+}
+.brand-title{font-weight:800; font-size:14.5px; line-height:1.25;}
+.brand-sub{font-family:var(--mono); font-size:10px; color:var(--text-faint); letter-spacing:1px;}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:9px; color:var(--text-dim);
+  font-size:13.5px; font-weight:600; background:transparent; border:1px solid transparent; text-align:right; width:100%;
+  transition:all .15s;
+}
+.nav-item:hover{background:var(--surface-2); color:var(--text);}
+.nav-item.active{background:var(--surface-2); color:var(--accent); border-color:var(--border);}
+.nav-icon{width:17px; text-align:center; flex-shrink:0; opacity:.85; font-size:14px;}
+.nav-badge{margin-right:auto; font-family:var(--mono); font-size:10.5px; background:var(--surface-3); color:var(--text-dim); padding:1px 6px; border-radius:20px;}
+.sidebar-footer{margin-top:auto; padding-top:12px; border-top:1px solid var(--border-soft);}
+
+.fab-add{
+  display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:11px; border-radius:9px;
+  background:linear-gradient(135deg, var(--accent), #21a89d); color:#00201d; font-weight:800; font-size:13.5px; border:none;
+  box-shadow:0 4px 18px var(--accent-glow);
+}
+.fab-add:active{transform:scale(.98);}
+
+/* ---------- Main ---------- */
+.main{flex:1; min-width:0; padding:26px 30px 100px;}
+.topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; gap:14px; flex-wrap:wrap;}
+.page-title{font-size:20px; font-weight:800;}
+.page-sub{color:var(--text-faint); font-size:12.5px; margin-top:3px; font-family:var(--mono);}
+.search-quick{position:relative; width:280px; max-width:100%;}
+.search-quick input{padding-right:34px;}
+.search-quick .ic{position:absolute; right:11px; top:50%; transform:translateY(-50%); color:var(--text-faint); font-size:14px;}
+
+.grid-stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:22px;}
+.stat-card{
+  background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; padding:16px; position:relative; overflow:hidden;
+}
+.stat-card::before{content:''; position:absolute; top:0; right:0; width:3px; height:100%; background:var(--accent); opacity:.6;}
+.stat-value{font-family:var(--mono); font-size:26px; font-weight:700; color:var(--text);}
+.stat-label{color:var(--text-dim); font-size:12px; margin-top:5px; font-weight:600;}
+
+.panel{background:var(--surface); border:1px solid var(--border-soft); border-radius:14px; padding:18px; margin-bottom:18px;}
+.panel-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+.panel-title{font-size:14px; font-weight:800; display:flex; align-items:center; gap:8px;}
+.panel-title .dot{width:7px;height:7px;border-radius:50%;background:var(--accent); box-shadow:0 0 8px var(--accent);}
+
+.progress-track{width:100%; height:9px; background:var(--surface-3); border-radius:20px; overflow:hidden; border:1px solid var(--border-soft);}
+.progress-fill{height:100%; background:linear-gradient(90deg, var(--accent-dim), var(--accent)); border-radius:20px; transition:width .4s;}
+
+/* ---------- Note Card ---------- */
+.notes-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:14px;}
+.note-card{
+  background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; padding:0; overflow:hidden;
+  transition:border-color .15s, transform .15s; position:relative;
+}
+.note-card:hover{border-color:var(--accent-dim); transform:translateY(-2px);}
+.note-term-bar{
+  display:flex; align-items:center; justify-content:space-between; padding:11px 14px; background:var(--surface-2);
+  border-bottom:1px solid var(--border-soft);
+}
+.note-term{font-family:var(--mono); font-weight:700; font-size:15px; color:var(--accent);}
+.note-meaning{font-size:12px; color:var(--text-dim); margin-top:2px;}
+.badge{
+  font-family:var(--mono); font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:5px; letter-spacing:.5px;
+  clip-path:polygon(6px 0,100% 0,100% 100%,0 100%,0 6px);
+}
+.badge-normal{background:rgba(142,160,172,.12); color:var(--text-dim); border:1px solid var(--border);}
+.badge-important{background:rgba(232,163,61,.12); color:var(--warn); border:1px solid rgba(232,163,61,.35);}
+.badge-critical{background:rgba(239,91,91,.12); color:var(--crit); border:1px solid rgba(239,91,91,.35);}
+.badge-new{background:rgba(55,208,196,.12); color:var(--accent); border:1px solid rgba(55,208,196,.35);}
+.badge-reviewed{background:rgba(62,207,142,.12); color:var(--ok); border:1px solid rgba(62,207,142,.35);}
+.badge-needs{background:rgba(239,91,91,.1); color:var(--crit); border:1px solid rgba(239,91,91,.3);}
+
+.note-body{padding:12px 14px 14px; font-size:12.5px; color:var(--text-dim); line-height:1.8;}
+.note-row{margin-bottom:6px;}
+.note-row b{color:var(--text); font-weight:700;}
+.tag-chip{
+  display:inline-block; font-family:var(--mono); font-size:10px; background:var(--surface-3); color:var(--accent);
+  padding:2px 7px; border-radius:20px; margin:2px 3px 0 0; border:1px solid var(--border);
+}
+.note-foot{display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-top:1px solid var(--border-soft); background:var(--surface-2);}
+.icon-btn{
+  background:transparent; border:1px solid var(--border); color:var(--text-dim); border-radius:7px; padding:6px 9px; font-size:12px; display:flex; align-items:center; gap:5px;
+}
+.icon-btn:hover{border-color:var(--accent-dim); color:var(--accent);}
+.icon-btn.danger:hover{border-color:var(--crit); color:var(--crit);}
+
+.filters-bar{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+.filters-bar > *{min-width:140px; flex:1;}
+.filters-bar .search-wide{flex:2; min-width:220px;}
+
+.empty-state{text-align:center; padding:50px 20px; color:var(--text-faint);}
+.empty-state .glyph{font-size:34px; margin-bottom:10px; opacity:.5;}
+
+/* ---------- Modal ---------- */
+.overlay{position:fixed; inset:0; background:rgba(3,6,9,.72); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; z-index:100; padding:16px;}
+.modal{background:var(--surface); border:1px solid var(--border); border-radius:16px; width:640px; max-width:100%; max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.modal-head{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border-soft); position:sticky; top:0; background:var(--surface); z-index:2;}
+.modal-title{font-weight:800; font-size:15px;}
+.modal-body{padding:20px;}
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+.form-grid .full{grid-column:1/-1;}
+.field{margin-bottom:2px;}
+.close-x{background:transparent; border:none; color:var(--text-dim); font-size:18px; padding:4px 8px; border-radius:6px;}
+.close-x:hover{background:var(--surface-2); color:var(--text);}
+.modal-actions{display:flex; gap:10px; padding:16px 20px; border-top:1px solid var(--border-soft); position:sticky; bottom:0; background:var(--surface);}
+.btn{padding:10px 18px; border-radius:9px; font-weight:700; font-size:13px; border:1px solid var(--border);}
+.btn-primary{background:linear-gradient(135deg, var(--accent), #21a89d); color:#00201d; border:none; flex:1;}
+.btn-ghost{background:transparent; color:var(--text-dim);}
+.btn-danger{background:rgba(239,91,91,.12); color:var(--crit); border:1px solid rgba(239,91,91,.35);}
+.collapse-toggle{font-family:var(--mono); font-size:11.5px; color:var(--accent); background:transparent; border:1px dashed var(--border); border-radius:8px; padding:8px 12px; width:100%; text-align:center; margin-top:6px;}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:fixed; bottom:26px; left:50%; transform:translateX(-50%); background:var(--surface-2); border:1px solid var(--accent-dim);
+  color:var(--text); padding:12px 20px; border-radius:10px; font-size:13px; font-weight:600; box-shadow:0 8px 30px rgba(0,0,0,.4);
+  z-index:200; display:flex; align-items:center; gap:8px; animation:toastIn .25s ease;
+}
+.toast.err{border-color:var(--crit);}
+@keyframes toastIn{from{opacity:0; transform:translate(-50%,10px);} to{opacity:1; transform:translate(-50%,0);}}
+
+/* ---------- Review / Quiz ---------- */
+.review-card{background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; padding:16px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap;}
+.review-actions{display:flex; gap:8px;}
+.btn-know{background:rgba(62,207,142,.12); color:var(--ok); border:1px solid rgba(62,207,142,.35); border-radius:8px; padding:8px 14px; font-weight:700; font-size:12.5px;}
+.btn-again{background:rgba(239,91,91,.1); color:var(--crit); border:1px solid rgba(239,91,91,.3); border-radius:8px; padding:8px 14px; font-weight:700; font-size:12.5px;}
+
+.quiz-box{background:var(--surface); border:1px solid var(--border-soft); border-radius:14px; padding:24px; max-width:680px; margin:0 auto;}
+.quiz-progress{font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-bottom:10px;}
+.quiz-q{font-size:16px; font-weight:700; margin-bottom:18px; line-height:1.7;}
+.quiz-opt{display:block; width:100%; text-align:right; padding:13px 16px; margin-bottom:10px; border-radius:10px; background:var(--surface-2); border:1px solid var(--border); color:var(--text); font-size:13.5px;}
+.quiz-opt:hover{border-color:var(--accent-dim);}
+.quiz-opt.correct{border-color:var(--ok); background:rgba(62,207,142,.1); color:var(--ok);}
+.quiz-opt.wrong{border-color:var(--crit); background:rgba(239,91,91,.1); color:var(--crit);}
+.quiz-explain{background:var(--surface-3); border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--text-dim); margin-top:14px; border-right:3px solid var(--accent);}
+
+/* ---------- Bottom nav (mobile) ---------- */
+.bottom-nav{display:none;}
+@media (max-width:880px){
+  .sidebar{display:none;}
+  .main{padding:16px 14px 90px;}
+  .bottom-nav{
+    display:flex; position:fixed; bottom:0; right:0; left:0; background:var(--surface); border-top:1px solid var(--border-soft);
+    z-index:60; padding:6px 4px; justify-content:space-around;
+  }
+  .bn-item{display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--text-faint); font-size:9.5px; background:none; border:none; padding:7px 4px; flex:1; font-weight:700;}
+  .bn-item.active{color:var(--accent);}
+  .bn-icon{font-size:16px;}
+  .form-grid{grid-template-columns:1fr;}
+  .dash-cols{grid-template-columns:1fr !important;}
+  .fab-mobile{
+    position:fixed; bottom:70px; left:16px; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,var(--accent),#21a89d);
+    color:#00201d; border:none; font-size:24px; box-shadow:0 6px 20px var(--accent-glow); z-index:61; display:flex; align-items:center; justify-content:center;
+  }
+}
+.spinner{width:26px; height:26px; border-radius:50%; border:3px solid var(--surface-3); border-top-color:var(--accent); animation:spin .7s linear infinite; margin:60px auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.section-label{font-family:var(--mono); font-size:11px; color:var(--text-faint); letter-spacing:1.5px; margin-bottom:8px; text-transform:uppercase;}
+
+/* ---------- SecNote visual layer: particles, glass, glow, motion ---------- */
+.bg-particles{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; opacity:.55;}
+.bg-particles span{
+  position:absolute; width:3px; height:3px; border-radius:50%; background:var(--accent);
+  box-shadow:0 0 6px 1px var(--accent-glow); opacity:.35; animation:floatUp linear infinite;
+}
+@keyframes floatUp{
+  0%{ transform:translateY(0) translateX(0); opacity:0; }
+  10%{ opacity:.5; }
+  90%{ opacity:.4; }
+  100%{ transform:translateY(-100vh) translateX(20px); opacity:0; }
+}
+.app{position:relative; z-index:1;}
+
+.glass{background:rgba(13,20,27,.62); backdrop-filter:blur(14px) saturate(140%); -webkit-backdrop-filter:blur(14px) saturate(140%); border:1px solid rgba(55,208,196,.09);}
+.stat-card, .panel, .note-card, .quiz-box, .review-card, .modal{ background:rgba(13,20,27,.72); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+.stat-card, .panel{ transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.stat-card:hover{ transform:translateY(-2px); border-color:var(--accent-dim); box-shadow:0 10px 26px rgba(0,0,0,.35); }
+.panel:hover{ border-color:var(--border); }
+.btn, .icon-btn, .nav-item, .fab-add, .quiz-opt, .tag-chip{ transition:transform .12s ease, border-color .15s ease, background .15s ease, color .15s ease, box-shadow .15s ease; }
+.btn:hover{ transform:translateY(-1px); }
+.btn:active, .icon-btn:active{ transform:scale(.97); }
+.btn-primary:hover{ box-shadow:0 6px 22px var(--accent-glow); }
+.nav-item:hover{ transform:translateX(-2px); }
+.tag-chip.clickable{ cursor:pointer; }
+.tag-chip.clickable:hover{ background:var(--accent-dim); color:#00201d; border-color:var(--accent); }
+
+.page-fade{ animation:pageFade .28s ease; }
+@keyframes pageFade{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+
+.note-saved-pop{ animation:savedPop .35s ease; }
+@keyframes savedPop{ 0%{ transform:scale(.9); opacity:0;} 60%{ transform:scale(1.02); opacity:1;} 100%{ transform:scale(1);} }
+
+.quiz-opt.correct{ animation:correctPulse .5s ease; }
+.quiz-opt.wrong{ animation:wrongShake .4s ease; }
+@keyframes correctPulse{ 0%{ box-shadow:0 0 0 0 rgba(62,207,142,.5);} 100%{ box-shadow:0 0 0 12px rgba(62,207,142,0);} }
+@keyframes wrongShake{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-4px);} 75%{ transform:translateX(4px);} }
+
+.xp-float{ position:fixed; z-index:300; font-family:var(--mono); font-weight:800; color:var(--accent); pointer-events:none; animation:xpFloat 1s ease forwards; }
+@keyframes xpFloat{ 0%{ opacity:0; transform:translateY(0);} 15%{ opacity:1;} 100%{ opacity:0; transform:translateY(-38px);} }
+
+.level-chip{
+  display:flex; align-items:center; gap:8px; padding:10px 12px; border-radius:10px; background:var(--surface-2);
+  border:1px solid var(--border-soft); margin-bottom:8px;
+}
+.level-ring{
+  width:36px; height:36px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:800; font-size:11px; color:var(--accent);
+  background:conic-gradient(var(--accent) calc(var(--pct,0)*1%), var(--surface-3) 0);
+}
+.level-ring::after{ content:''; position:absolute; }
+.level-ring-inner{ width:28px; height:28px; border-radius:50%; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:10px; }
+.streak-flame{ font-size:15px; }
+.xp-bar-track{ width:100%; height:6px; background:var(--surface-3); border-radius:20px; overflow:hidden; margin-top:4px; }
+.xp-bar-fill{ height:100%; background:linear-gradient(90deg, var(--warn), #ffd76a); border-radius:20px; transition:width .5s ease; }
+
+/* ---------- Domain map ---------- */
+.domain-row{ margin-bottom:14px; }
+.domain-row .domain-head{ display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:5px; }
+
+/* ---------- Calendar heatmap ---------- */
+.heatmap{ display:grid; grid-template-columns:repeat(auto-fill, 11px); grid-auto-flow:column; grid-template-rows:repeat(7, 11px); gap:3px; overflow-x:auto; padding-bottom:6px; }
+.heatmap-cell{ width:11px; height:11px; border-radius:2px; background:var(--surface-3); }
+.heatmap-legend{ display:flex; align-items:center; gap:4px; font-size:10px; color:var(--text-faint); margin-top:8px; }
+
+/* ---------- Linked terms ---------- */
+.linked-term-chip{
+  display:inline-flex; align-items:center; gap:4px; font-family:var(--mono); font-size:11px; background:var(--surface-3);
+  color:var(--accent); padding:4px 9px; border-radius:20px; margin:3px 4px 0 0; border:1px solid var(--border); cursor:pointer;
+}
+.linked-term-chip:hover{ background:var(--accent-dim); color:#00201d; }
+
+/* ---------- Keyboard shortcut hints ---------- */
+.kbd{
+  font-family:var(--mono); font-size:10.5px; background:var(--surface-3); border:1px solid var(--border); border-radius:5px;
+  padding:1px 6px; color:var(--text-dim);
+}
+.shortcuts-hint{ position:fixed; bottom:16px; right:16px; z-index:50; }
+@media (max-width:880px){ .shortcuts-hint{ display:none; } }
+
+/* ---------- Print / PDF export ---------- */
+@media print{
+  .sidebar, .bottom-nav, .fab-mobile, .topbar, .filters-bar, .icon-btn, .btn, .shortcuts-hint, .bg-particles, .xp-float{ display:none !important; }
+  body, .app, .main{ background:#fff !important; color:#000 !important; padding:0 !important; }
+  .note-card, .panel{ break-inside:avoid; border:1px solid #ccc !important; background:#fff !important; box-shadow:none !important; }
+  .note-term{ color:#111 !important; }
+}
+</style>
+<style id="theme-toggle-style">
+[data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] textarea{ background:var(--surface-2); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState, useEffect, useMemo, useRef, useCallback} = React;
+const STORAGE_KEY = "sp-notebook-data-v1";
+
+function uid(){ return 'n_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function nowISO(){ return new Date().toISOString(); }
+function fmtDate(iso){
+  try{
+    const d = new Date(iso);
+    return d.toLocaleDateString('fa-IR', {year:'numeric', month:'2-digit', day:'2-digit'});
+  }catch(e){ return ''; }
+}
+
+const IMPORTANCE = [
+  {v:'normal', label:'معمولی', cls:'badge-normal'},
+  {v:'important', label:'مهم', cls:'badge-important'},
+  {v:'critical', label:'بسیار مهم', cls:'badge-critical'},
+];
+const REVIEW_STATUS = [
+  {v:'new', label:'🆕 جدید (New)', cls:'badge-new'},
+  {v:'reviewed', label:'✅ بلد شده (Mastered)', cls:'badge-reviewed'},
+  {v:'needs-review', label:'🔄 نیاز به مرور (Review)', cls:'badge-needs'},
+];
+function metaOf(list, v){ return list.find(x=>x.v===v) || list[0]; }
+
+const DEFAULT_CATEGORIES = ['Malware','Social Engineering','Network Attacks','Network Security','Cryptography','Threat Actors','Vulnerabilities','Penetration Testing','Identity & Access Management','Security Operations','Architecture & Design','Governance & Risk'];
+
+// Maps each category to one of the 5 official Security+ SY0-701 exam domains,
+// used to build the domain-coverage map on the dashboard/stats pages.
+const EXAM_DOMAINS = [
+  {v:'general', label:'1.0 General Security Concepts'},
+  {v:'threats', label:'2.0 Threats, Vulnerabilities & Mitigations'},
+  {v:'architecture', label:'3.0 Security Architecture'},
+  {v:'operations', label:'4.0 Security Operations'},
+  {v:'program', label:'5.0 Security Program Management'},
+];
+const CATEGORY_TO_DOMAIN = {
+  'Malware':'threats', 'Social Engineering':'threats', 'Network Attacks':'threats',
+  'Threat Actors':'threats', 'Vulnerabilities':'threats', 'Penetration Testing':'threats',
+  'Network Security':'architecture', 'Cryptography':'architecture', 'Architecture & Design':'architecture',
+  'Identity & Access Management':'operations', 'Security Operations':'operations',
+  'Governance & Risk':'program',
+};
+function domainOf(category){ return CATEGORY_TO_DOMAIN[category] || 'general'; }
+
+function sampleNotes(){
+  const t = nowISO();
+  return [
+    {
+      id:uid(), term:'Phishing', meaning:'فیشینگ',
+      concept:'فریب کاربر از طریق ایمیل، پیامک یا سایت جعلی برای گرفتن اطلاعات حساس مثل رمز عبور یا اطلاعات بانکی.',
+      example:'ایمیل جعلی که خود را بانک معرفی می‌کند و از کاربر می‌خواهد روی لینک بزند و رمز عبورش را وارد کند.',
+      defense:'آموزش کاربر، MFA، Email Filtering، Anti-Phishing Toolbar، DMARC/DKIM/SPF',
+      examTip:'تفاوت Phishing (عمومی) با Spear Phishing (هدفمند) و Whaling (مدیران ارشد) را حتماً بلد باش.',
+      category:'Social Engineering', tags:['Phishing','SocialEngineering'], importance:'critical', reviewStatus:'new',
+      quizQuestion:'هدف اصلی حمله Phishing چیست؟',
+      quizOptions:['گرفتن اطلاعات حساس با فریب کاربر','افزایش سرعت شبکه','رمزنگاری داده‌های دیسک','پشتیبان‌گیری خودکار از سرور'],
+      quizCorrectIndex:0,
+      quizExplanation:'Phishing نوعی مهندسی اجتماعی است که با فریب کاربر، اطلاعات حساس او را می‌رباید.',
+      createdAt:t, updatedAt:t,
+    },
+    {
+      id:uid(), term:'Spear Phishing', meaning:'فیشینگ هدفمند',
+      concept:'نوع پیشرفته‌تر Phishing که برای یک فرد یا سازمان خاص، با اطلاعات شخصی‌سازی‌شده طراحی می‌شود.',
+      example:'ایمیلی خطاب به مدیر مالی شرکت که دقیقاً نام و سمت او را می‌داند و درخواست واریز فوری وجه دارد.',
+      defense:'آموزش هدفمند کارکنان کلیدی، تایید دومرحله‌ای برای تراکنش‌ها، بررسی هدر ایمیل',
+      examTip:'در آزمون معمولاً با یک سناریوی شخصی‌سازی‌شده مشخص می‌شود، نه یک ایمیل عمومی.',
+      category:'Social Engineering', tags:['Phishing','SocialEngineering'], importance:'important', reviewStatus:'new',
+      quizQuestion:'ویژگی اصلی Spear Phishing نسبت به Phishing عادی چیست؟',
+      quizOptions:['هدفمند بودن و شخصی‌سازی برای فرد یا سازمان خاص','استفاده از تلفن به‌جای ایمیل','عدم نیاز به اینترنت','رمزنگاری خودکار پیام'],
+      quizCorrectIndex:0,
+      quizExplanation:'Spear Phishing با جمع‌آوری اطلاعات درباره هدف، حمله را شخصی‌سازی می‌کند.',
+      createdAt:t, updatedAt:t,
+    },
+    {
+      id:uid(), term:'MFA', meaning:'احراز هویت چندعاملی',
+      concept:'روشی برای احراز هویت که از دو یا چند عامل مستقل (چیزی که می‌دانی، چیزی که داری، چیزی که هستی) استفاده می‌کند.',
+      example:'ورود با رمز عبور + کد یک‌بار مصرف پیامکی یا اپلیکیشن Authenticator',
+      defense:'خودِ MFA یک راهکار دفاعی است؛ در برابر سرقت رمز عبور و برخی حملات Phishing محافظت می‌کند.',
+      examTip:'انواع فاکتورها را حفظ کن: Knowledge، Possession، Inherence، Somewhere you are، Something you do.',
+      category:'IAM', tags:['IAM'], importance:'critical', reviewStatus:'new',
+      quizQuestion:'کدام گزینه یک مثال از فاکتور «چیزی که داری» در MFA است؟',
+      quizOptions:['توکن سخت‌افزاری یا اپلیکیشن Authenticator','رمز عبور','اثر انگشت','سوال امنیتی'],
+      quizCorrectIndex:0,
+      quizExplanation:'توکن یا موبایل، نمونه‌ای از فاکتور Possession (چیزی که داری) است.',
+      createdAt:t, updatedAt:t,
+    },
+    {
+      id:uid(), term:'Firewall', meaning:'دیوار آتش',
+      concept:'سیستمی که ترافیک شبکه ورودی و خروجی را بر اساس مجموعه‌ای از قوانین امنیتی کنترل و فیلتر می‌کند.',
+      example:'مسدود کردن تمام پورت‌های ورودی به‌جز پورت 443 برای یک وب‌سرور عمومی.',
+      defense:'خودِ Firewall یک لایه دفاعی محیطی (Perimeter Defense) است؛ معمولاً همراه با IDS/IPS استفاده می‌شود.',
+      examTip:'تفاوت Stateful و Stateless Firewall و همچنین NGFW (Next-Gen Firewall) را بشناس.',
+      category:'Network Security', tags:['NetworkSecurity'], importance:'important', reviewStatus:'new',
+      quizQuestion:'وظیفه اصلی Firewall چیست؟',
+      quizOptions:['کنترل و فیلتر ترافیک شبکه بر اساس قوانین امنیتی','رمزنگاری فایل‌های ذخیره‌شده','پشتیبان‌گیری از داده‌ها','مانیتورینگ دمای سرور'],
+      quizCorrectIndex:0,
+      quizExplanation:'Firewall بر اساس Rule Set تعیین می‌کند چه ترافیکی اجازه عبور دارد.',
+      createdAt:t, updatedAt:t,
+    },
+    {
+      id:uid(), term:'Social Engineering', meaning:'مهندسی اجتماعی',
+      concept:'مجموعه تکنیک‌های روان‌شناختی برای فریب انسان‌ها به‌منظور افشای اطلاعات یا انجام اقدامات ناامن، به‌جای حمله فنی مستقیم.',
+      example:'تماس تلفنی جعلی از طرف «پشتیبانی فناوری اطلاعات» برای گرفتن رمز عبور کارمند.',
+      defense:'آموزش مستمر کاربران، فرهنگ‌سازی امنیتی، Policy تایید هویت قبل از افشای اطلاعات',
+      examTip:'زیرمجموعه‌های آن مثل Pretexting، Baiting، Tailgating و Vishing را جدا از هم بشناس.',
+      category:'Social Engineering', tags:['SocialEngineering','Threats'], importance:'critical', reviewStatus:'new',
+      quizQuestion:'مهندسی اجتماعی عمدتاً بر پایه چه چیزی است؟',
+      quizOptions:['فریب روان‌شناختی انسان‌ها به‌جای حمله فنی مستقیم','آسیب‌پذیری نرم‌افزاری','ضعف رمزنگاری','خطای پیکربندی روتر'],
+      quizCorrectIndex:0,
+      quizExplanation:'برخلاف حملات فنی، مهندسی اجتماعی روی رفتار و اعتماد انسان تمرکز دارد.',
+      createdAt:t, updatedAt:t,
+    },
+  ];
+}
+
+function useToast(){
+  const [toast, setToast] = useState(null);
+  const timerRef = useRef(null);
+  const show = useCallback((msg, type='ok')=>{
+    if(timerRef.current) clearTimeout(timerRef.current);
+    setToast({msg, type});
+    timerRef.current = setTimeout(()=> setToast(null), 2600);
+  },[]);
+  return [toast, show];
+}
+
+/* ---------------- Persistence ---------------- */
+// Uses the browser's real localStorage API so data survives refreshes,
+// closing/reopening the browser, and restarting the computer.
+// (window.storage is only available inside Claude.ai artifacts, not in a
+// standalone .html file opened in a normal browser — that mismatch was the
+// root cause of notes disappearing on refresh.)
+function isStorageAvailable(){
+  try{
+    const t = '__sp_storage_test__';
+    window.localStorage.setItem(t, '1');
+    window.localStorage.removeItem(t);
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+function loadData(){
+  try{
+    if(!isStorageAvailable()) throw new Error('localStorage unavailable');
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && typeof parsed === 'object'){
+        // srsDue/srsInterval/srsEase/srsReps are newer fields (Spaced Repetition) —
+        // migrateSrs defaults them per-note so notes saved before this feature
+        // existed keep loading without breaking.
+        const notes = (Array.isArray(parsed.notes) ? parsed.notes : []).map(migrateSrs);
+        const quizScores = Array.isArray(parsed.quizScores) ? parsed.quizScores : [];
+        // xp/streak are newer fields — default them for data saved before SecNote upgrade,
+        // so older localStorage payloads keep loading without breaking.
+        const xp = typeof parsed.xp === 'number' ? parsed.xp : 0;
+        const streak = parsed.streak && typeof parsed.streak === 'object'
+          ? {count: parsed.streak.count||0, lastDate: parsed.streak.lastDate||null}
+          : {count:0, lastDate:null};
+        const theme = parsed.theme==='light' ? 'light' : 'dark';
+        return {notes, quizScores, xp, streak, theme};
+      }
+    }
+    // Nothing saved yet (first run) -> seed with sample notes.
+    return {notes: sampleNotes().map(migrateSrs), quizScores: [], xp:0, streak:{count:0,lastDate:null}, theme:'dark'};
+  }catch(e){
+    console.error('loadData: storage read failed/corrupted, falling back to samples', e);
+    return {notes: sampleNotes().map(migrateSrs), quizScores: [], xp:0, streak:{count:0,lastDate:null}, theme:'dark'};
+  }
+}
+function persistData(notes, quizScores, xp, streak, theme){
+  try{
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({notes, quizScores, xp, streak, theme}));
+    return true;
+  }catch(e){
+    console.error('persist failed', e);
+    return false;
+  }
+}
+
+/* ---------------- XP / Level / Streak helpers ---------------- */
+const LEVELS = [
+  {level:1, name:'Beginner', min:0},
+  {level:2, name:'Learner', min:100},
+  {level:3, name:'Security Student', min:300},
+  {level:4, name:'Security Explorer', min:600},
+  {level:5, name:'Security Master', min:1000},
+];
+function levelInfo(xp){
+  let cur = LEVELS[0];
+  for(const l of LEVELS){ if(xp>=l.min) cur = l; }
+  const idx = LEVELS.indexOf(cur);
+  const next = LEVELS[idx+1] || null;
+  const pct = next ? Math.round(((xp-cur.min)/(next.min-cur.min))*100) : 100;
+  return {...cur, next, pct: Math.max(0, Math.min(100,pct))};
+}
+function isSameDay(a,b){
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+function isYesterday(a,b){
+  const y = new Date(b); y.setDate(y.getDate()-1);
+  return isSameDay(a,y);
+}
+// Bumps the streak based on real calendar dates: same day = no change,
+// consecutive day = +1, any gap = reset to 1. Persisted in storage.
+function bumpStreak(streak){
+  const today = new Date();
+  if(!streak.lastDate) return {count:1, lastDate: today.toISOString()};
+  const last = new Date(streak.lastDate);
+  if(isSameDay(last, today)) return streak;
+  if(isYesterday(last, today)) return {count:(streak.count||0)+1, lastDate: today.toISOString()};
+  return {count:1, lastDate: today.toISOString()};
+}
+
+/* ---------------- Spaced Repetition (simplified SM-2) ---------------- */
+// Every note carries its own SRS state: srsDue (ISO date it's due), srsInterval
+// (days until next review), srsEase (2.5 default, how quickly intervals grow),
+// srsReps (consecutive correct grades). Notes created before this feature
+// existed get these fields defaulted on load (see migrateSrs below).
+function defaultSrs(){
+  return { srsDue: nowISO(), srsInterval: 0, srsEase: 2.5, srsReps: 0 };
+}
+function migrateSrs(note){
+  const withLinks = note.linkedTerms ? note : {...note, linkedTerms:[]};
+  if(withLinks.srsDue) return withLinks;
+  return {...withLinks, ...defaultSrs()};
+}
+function isDue(note){
+  if(!note.srsDue) return true;
+  return new Date(note.srsDue) <= new Date();
+}
+function daysUntil(iso){
+  const diff = Math.ceil((new Date(iso) - new Date()) / 86400000);
+  return diff;
+}
+// grade: 'again' (نیاز به مرور) resets progress; 'know' (بلدم) grows the interval.
+function srsGrade(note, grade){
+  let {srsInterval=0, srsEase=2.5, srsReps=0} = note;
+  if(grade==='again'){
+    srsReps = 0;
+    srsInterval = 1;
+    srsEase = Math.max(1.3, srsEase - 0.2);
+  }else{
+    srsReps += 1;
+    if(srsReps===1) srsInterval = 1;
+    else if(srsReps===2) srsInterval = 6;
+    else srsInterval = Math.round(srsInterval * srsEase);
+    srsEase = Math.min(2.8, srsEase + 0.1);
+  }
+  const due = new Date();
+  due.setDate(due.getDate() + srsInterval);
+  const reviewStatus = grade==='again' ? 'needs-review' : (srsReps>=2 ? 'reviewed' : 'needs-review');
+  return {
+    srsInterval, srsEase, srsReps,
+    srsDue: due.toISOString(),
+    reviewStatus,
+    updatedAt: nowISO(),
+  };
+}
+
+/* ---------------- Small components ---------------- */
+// A handful of slow-drifting dots for a subtle cyber-grid/particle backdrop.
+// Purely decorative — generated once per mount, no state, no persistence.
+function BgParticles(){
+  const particles = useMemo(()=> Array.from({length:22}).map((_,i)=>({
+    id:i,
+    left: Math.round(Math.random()*100),
+    delay: (Math.random()*14).toFixed(2),
+    duration: (14+Math.random()*10).toFixed(2),
+    size: (Math.random()*2+2).toFixed(1),
+  })), []);
+  return (
+    <div className="bg-particles" aria-hidden="true">
+      {particles.map(p=>(
+        <span key={p.id} style={{
+          left:p.left+'%', width:p.size+'px', height:p.size+'px',
+          animationDelay:p.delay+'s', animationDuration:p.duration+'s',
+        }}></span>
+      ))}
+    </div>
+  );
+}
+
+function Badge({meta}){
+  return <span className={"badge " + meta.cls}>{meta.label}</span>;
+}
+
+function StatCard({value, label}){
+  return (
+    <div className="stat-card">
+      <div className="stat-value ltr">{value}</div>
+      <div className="stat-label">{label}</div>
+    </div>
+  );
+}
+
+// Shows progress across the 5 official Security+ SY0-701 exam domains,
+// derived from each note's category via CATEGORY_TO_DOMAIN.
+function DomainMap({notes}){
+  const rows = EXAM_DOMAINS.map(d=>{
+    const inDomain = notes.filter(n=> domainOf(n.category)===d.v);
+    const mastered = inDomain.filter(n=> n.reviewStatus==='reviewed').length;
+    const pct = inDomain.length ? Math.round((mastered/inDomain.length)*100) : 0;
+    return {...d, total:inDomain.length, mastered, pct};
+  });
+  return (
+    <div className="panel">
+      <div className="panel-title" style={{marginBottom:14}}><span className="dot"></span> نقشهٔ پوشش دامنه‌های آزمون (SY0-701)</div>
+      {rows.map(r=>(
+        <div key={r.v} className="domain-row">
+          <div className="domain-head">
+            <span>{r.label}</span>
+            <span className="ltr" style={{color:'var(--text-faint)'}}>{r.total ? `${r.mastered}/${r.total} mastered` : 'no notes yet'}</span>
+          </div>
+          <div className="progress-track" style={{height:7}}>
+            <div className="progress-fill" style={{width:r.pct+'%'}}></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// GitHub-style contribution heatmap built from note create/update timestamps
+// and quiz-completion dates already stored — no extra persistence needed.
+function CalendarHeatmap({notes, quizScores}){
+  const days = useMemo(()=>{
+    const counts = {};
+    const bump = (iso)=>{
+      if(!iso) return;
+      const key = new Date(iso).toISOString().slice(0,10);
+      counts[key] = (counts[key]||0) + 1;
+    };
+    notes.forEach(n=>{ bump(n.createdAt); if(n.updatedAt!==n.createdAt) bump(n.updatedAt); });
+    quizScores.forEach(q=> bump(q.date));
+
+    const totalDays = 98; // ~14 weeks
+    const arr = [];
+    const today = new Date();
+    for(let i=totalDays-1; i>=0; i--){
+      const d = new Date(today); d.setDate(d.getDate()-i);
+      const key = d.toISOString().slice(0,10);
+      arr.push({key, count: counts[key]||0});
+    }
+    return arr;
+  },[notes, quizScores]);
+
+  const levelColor = (c)=>{
+    if(c===0) return 'var(--surface-3)';
+    if(c===1) return 'var(--accent-dim)';
+    if(c<=3) return 'var(--accent)';
+    return '#7bf5e8';
+  };
+
+  return (
+    <div className="panel">
+      <div className="panel-title" style={{marginBottom:12}}><span className="dot"></span> Study Calendar (۱۴ هفتهٔ اخیر)</div>
+      <div className="heatmap">
+        {days.map(d=> <div key={d.key} className="heatmap-cell" title={d.key+': '+d.count+' فعالیت'} style={{background:levelColor(d.count)}}></div>)}
+      </div>
+      <div className="heatmap-legend ltr">
+        Less
+        <span className="heatmap-cell" style={{background:'var(--surface-3)'}}></span>
+        <span className="heatmap-cell" style={{background:'var(--accent-dim)'}}></span>
+        <span className="heatmap-cell" style={{background:'var(--accent)'}}></span>
+        <span className="heatmap-cell" style={{background:'#7bf5e8'}}></span>
+        More
+      </div>
+    </div>
+  );
+}
+
+function ConfirmModal({title, body, onCancel, onConfirm, danger}){
+  return (
+    <div className="overlay" onClick={onCancel}>
+      <div className="modal" style={{width:400}} onClick={e=>e.stopPropagation()}>
+        <div className="modal-head">
+          <div className="modal-title">{title}</div>
+          <button className="close-x" onClick={onCancel}>✕</button>
+        </div>
+        <div className="modal-body">
+          <p style={{color:'var(--text-dim)', fontSize:13.5, lineHeight:1.8}}>{body}</p>
+        </div>
+        <div className="modal-actions">
+          <button className="btn btn-ghost" onClick={onCancel} style={{flex:1}}>انصراف</button>
+          <button className={danger?"btn btn-danger":"btn btn-primary"} style={{flex:1}} onClick={onConfirm}>تایید</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NoteFormModal({initial, categories, onClose, onSave}){
+  const blank = {
+    term:'', meaning:'', concept:'', example:'', defense:'', examTip:'',
+    category:'', tags:'', linkedTerms:'', importance:'normal', reviewStatus:'new', inQuiz:false,
+    quizQuestion:'', quizOptions:['','','',''], quizCorrectIndex:0, quizExplanation:''
+  };
+  const [form, setForm] = useState(()=>{
+    if(!initial) return blank;
+    return {
+      ...initial,
+      tags:(initial.tags||[]).join(', '),
+      linkedTerms:(initial.linkedTerms||[]).join(', '),
+      inQuiz: !!initial.inQuiz,
+      quizOptions: initial.quizOptions && initial.quizOptions.length===4 ? initial.quizOptions : ['','','',''],
+    };
+  });
+  const [showQuiz, setShowQuiz] = useState(!!(initial && initial.quizQuestion));
+  const set = (k,v)=> setForm(f=>({...f,[k]:v}));
+  const setOpt = (i,v)=> setForm(f=>{ const o=[...f.quizOptions]; o[i]=v; return {...f, quizOptions:o}; });
+
+  const submit = ()=>{
+    if(!form.term.trim() || !form.meaning.trim()){
+      alert('اصطلاح و معنی الزامی است.');
+      return;
+    }
+    const tagsArr = form.tags.split(',').map(s=>s.trim()).filter(Boolean);
+    const linkedArr = form.linkedTerms.split(',').map(s=>s.trim()).filter(Boolean);
+    const hasQuiz = showQuiz && form.quizQuestion.trim() && form.quizOptions.every(o=>o.trim());
+    onSave({
+      ...form,
+      tags: tagsArr,
+      linkedTerms: linkedArr,
+      inQuiz: !!form.inQuiz,
+      category: form.category.trim() || 'Uncategorized',
+      quizQuestion: hasQuiz ? form.quizQuestion.trim() : '',
+      quizOptions: hasQuiz ? form.quizOptions : ['','','',''],
+      quizCorrectIndex: hasQuiz ? Number(form.quizCorrectIndex) : 0,
+      quizExplanation: hasQuiz ? form.quizExplanation.trim() : '',
+    });
+  };
+
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div className="modal-head">
+          <div className="modal-title">{initial ? 'ویرایش یادداشت' : '+ افزودن یادداشت جدید'}</div>
+          <button className="close-x" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <div className="form-grid">
+            <div className="field">
+              <label>🔤 اصطلاح (انگلیسی)</label>
+              <input className="ltr" placeholder="Phishing" value={form.term} onChange={e=>set('term', e.target.value)} />
+            </div>
+            <div className="field">
+              <label>🇮🇷 معنی</label>
+              <input placeholder="فیشینگ" value={form.meaning} onChange={e=>set('meaning', e.target.value)} />
+            </div>
+            <div className="field full">
+              <label>🧠 مفهوم</label>
+              <textarea placeholder="توضیح مفهوم..." value={form.concept} onChange={e=>set('concept', e.target.value)} />
+            </div>
+            <div className="field full">
+              <label>🎯 مثال</label>
+              <textarea placeholder="یک مثال واقعی..." value={form.example} onChange={e=>set('example', e.target.value)} />
+            </div>
+            <div className="field full">
+              <label>🛡️ دفاع / راهکار</label>
+              <textarea placeholder="راهکار مقابله..." value={form.defense} onChange={e=>set('defense', e.target.value)} />
+            </div>
+            <div className="field full">
+              <label>⭐ نکته آزمونی</label>
+              <textarea placeholder="نکته‌ای که ممکن است در آزمون بیاید..." value={form.examTip} onChange={e=>set('examTip', e.target.value)} />
+            </div>
+            <div className="field">
+              <label>📚 دسته‌بندی</label>
+              <input list="cat-list" placeholder="Social Engineering" value={form.category} onChange={e=>set('category', e.target.value)} />
+              <datalist id="cat-list">
+                {categories.map(c=> <option key={c} value={c} />)}
+              </datalist>
+            </div>
+            <div className="field">
+              <label>🏷️ Tags (با کاما جدا کن)</label>
+              <input className="ltr" placeholder="Phishing, SocialEngineering" value={form.tags} onChange={e=>set('tags', e.target.value)} />
+            </div>
+            <div className="field full">
+              <label>🔗 یادداشت‌های مرتبط (اصطلاح دقیق، با کاما جدا کن)</label>
+              <input className="ltr" placeholder="Malware, Antivirus" value={form.linkedTerms} onChange={e=>set('linkedTerms', e.target.value)} />
+            </div>
+            <div className="field">
+              <label>🔖 سطح اهمیت</label>
+              <select value={form.importance} onChange={e=>set('importance', e.target.value)}>
+                {IMPORTANCE.map(i=> <option key={i.v} value={i.v}>{i.label}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label>🔄 وضعیت مرور</label>
+              <select value={form.reviewStatus} onChange={e=>set('reviewStatus', e.target.value)}>
+                {REVIEW_STATUS.map(i=> <option key={i.v} value={i.v}>{i.label}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <label style={{display:'flex', alignItems:'center', gap:8, marginTop:12, cursor:'pointer', fontSize:13, color:'var(--text)'}}>
+            <input type="checkbox" style={{width:'auto'}} checked={!!form.inQuiz} onChange={e=>set('inQuiz', e.target.checked)} />
+            ☑ افزودن به آزمون (این یادداشت وارد Quiz Bank شود)
+          </label>
+
+          {!showQuiz && (
+            <button className="collapse-toggle" onClick={()=>setShowQuiz(true)}>+ افزودن سؤال Quiz برای این مفهوم (اختیاری)</button>
+          )}
+          {showQuiz && (
+            <div style={{marginTop:14, padding:14, background:'var(--surface-2)', borderRadius:10, border:'1px solid var(--border-soft)'}}>
+              <div className="section-label">Quiz — سؤال چهارگزینه‌ای (اختیاری)</div>
+              <div className="field full" style={{marginBottom:10}}>
+                <label>متن سؤال</label>
+                <input placeholder={"What is " + (form.term||'...') + "?"} value={form.quizQuestion} onChange={e=>set('quizQuestion', e.target.value)} />
+              </div>
+              <div className="form-grid">
+                {[0,1,2,3].map(i=>(
+                  <div className="field" key={i}>
+                    <label>گزینه {String.fromCharCode(65+i)} {form.quizCorrectIndex==i ? '(صحیح)' : ''}</label>
+                    <div style={{display:'flex', gap:6}}>
+                      <input value={form.quizOptions[i]} onChange={e=>setOpt(i, e.target.value)} placeholder={"گزینه " + (i+1)} />
+                      <button type="button" onClick={()=>set('quizCorrectIndex', i)}
+                        className="icon-btn" style={{flexShrink:0, borderColor: form.quizCorrectIndex==i ? 'var(--ok)': 'var(--border)', color: form.quizCorrectIndex==i?'var(--ok)':'var(--text-dim)'}}>
+                        ✓
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="field full" style={{marginTop:10}}>
+                <label>توضیح کوتاه پس از پاسخ</label>
+                <textarea value={form.quizExplanation} onChange={e=>set('quizExplanation', e.target.value)} placeholder="چرا این گزینه درست است..." />
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="modal-actions">
+          <button className="btn btn-ghost" onClick={onClose}>انصراف</button>
+          <button className="btn btn-primary" onClick={submit}>{initial ? 'ذخیره تغییرات' : 'ذخیره یادداشت'}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NoteDetailModal({note, allNotes, onClose, onEdit, onOpenTerm}){
+  const linked = (note.linkedTerms||[]).map(t=> (allNotes||[]).find(n=> n.term.toLowerCase()===t.toLowerCase()) || {term:t, missing:true});
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div className="modal-head">
+          <div>
+            <div className="modal-title ltr">{note.term}</div>
+            <div style={{fontSize:12, color:'var(--text-dim)', marginTop:3}}>{note.meaning}</div>
+          </div>
+          <button className="close-x" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <div style={{display:'flex', gap:8, marginBottom:16, flexWrap:'wrap'}}>
+            <Badge meta={metaOf(IMPORTANCE, note.importance)} />
+            <Badge meta={metaOf(REVIEW_STATUS, note.reviewStatus)} />
+            <span className="tag-chip">📚 {note.category}</span>
+            {note.inQuiz && <span className="tag-chip ltr">🎯 In Quiz Bank</span>}
+            {note.srsDue && <span className="tag-chip ltr">⏱ {isDue(note) ? 'Due now' : `Next review in ${daysUntil(note.srsDue)}d`}</span>}
+          </div>
+          {note.concept && <DetailRow icon="🧠" title="مفهوم" text={note.concept} />}
+          {note.example && <DetailRow icon="🎯" title="مثال" text={note.example} />}
+          {note.defense && <DetailRow icon="🛡️" title="دفاع / راهکار" text={note.defense} />}
+          {note.examTip && <DetailRow icon="⭐" title="نکته آزمونی" text={note.examTip} />}
+          {note.tags && note.tags.length>0 && (
+            <div style={{marginTop:14}}>
+              {note.tags.map(t=> <span key={t} className="tag-chip ltr">#{t}</span>)}
+            </div>
+          )}
+          {linked.length>0 && (
+            <div style={{marginTop:16}}>
+              <div className="section-label">🔗 یادداشت‌های مرتبط</div>
+              {linked.map(l=> (
+                <span key={l.term} className="linked-term-chip"
+                  onClick={()=> !l.missing && onOpenTerm && onOpenTerm(l)}
+                  style={l.missing ? {opacity:.5, cursor:'default'} : {}}>
+                  {l.term}{l.missing ? ' (یافت نشد)' : ' ↗'}
+                </span>
+              ))}
+            </div>
+          )}
+          {note.quizQuestion && (
+            <div style={{marginTop:16, padding:12, background:'var(--surface-2)', borderRadius:10, border:'1px dashed var(--border)'}}>
+              <div className="section-label">سؤال Quiz ثبت‌شده</div>
+              <div style={{fontSize:13, fontWeight:600}}>{note.quizQuestion}</div>
+            </div>
+          )}
+        </div>
+        <div className="modal-actions">
+          <button className="btn btn-ghost" onClick={onClose} style={{flex:1}}>بستن</button>
+          <button className="btn btn-primary" style={{flex:1}} onClick={()=>onEdit(note)}>ویرایش</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+function DetailRow({icon, title, text}){
+  return (
+    <div className="note-row" style={{marginBottom:14}}>
+      <div style={{fontSize:12.5, fontWeight:700, color:'var(--text)', marginBottom:4}}>{icon} {title}</div>
+      <div style={{fontSize:13, color:'var(--text-dim)', lineHeight:1.9}}>{text}</div>
+    </div>
+  );
+}
+
+function NoteCard({note, onView, onEdit, onDelete, onTagClick}){
+  return (
+    <div className="note-card">
+      <div className="note-term-bar">
+        <div>
+          <div className="note-term ltr">{note.term}</div>
+          <div className="note-meaning">{note.meaning}</div>
+        </div>
+        <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:4}}>
+          <Badge meta={metaOf(IMPORTANCE, note.importance)} />
+          {note.inQuiz && <span className="tag-chip ltr" style={{fontSize:9}}>🎯 Quiz</span>}
+        </div>
+      </div>
+      <div className="note-body">
+        {note.concept && <div className="note-row"><b>🧠</b> {note.concept.length>90 ? note.concept.slice(0,90)+'…' : note.concept}</div>}
+        <div style={{display:'flex', alignItems:'center', gap:6, marginTop:8, flexWrap:'wrap'}}>
+          <Badge meta={metaOf(REVIEW_STATUS, note.reviewStatus)} />
+          <span className="tag-chip">📚 {note.category}</span>
+        </div>
+        {note.tags && note.tags.length>0 && (
+          <div style={{marginTop:6}}>
+            {note.tags.slice(0,4).map(t=> (
+              <span key={t} className="tag-chip ltr clickable" onClick={()=>onTagClick && onTagClick(t)}>#{t}</span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="note-foot">
+        <span className="ltr" style={{fontSize:10, color:'var(--text-faint)'}}>{fmtDate(note.updatedAt)}</span>
+        <div style={{display:'flex', gap:6}}>
+          <button className="icon-btn" onClick={()=>onView(note)}>👁</button>
+          <button className="icon-btn" onClick={()=>onEdit(note)}>✎</button>
+          <button className="icon-btn danger" onClick={()=>onDelete(note)}>🗑</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Pages ---------------- */
+function DashboardPage({notes, categories, quizScores, xp, level, streak, goTab}){
+  const total = notes.length;
+  const unread = notes.filter(isDue).length;
+  const reviewed = notes.filter(n=>n.reviewStatus==='reviewed').length;
+  const important = notes.filter(n=>n.importance==='important' || n.importance==='critical').length;
+  const totalQuizQuestions = notes.filter(n=>n.inQuiz).length;
+  const progress = total ? Math.round((reviewed/total)*100) : 0;
+  const recent = [...notes].sort((a,b)=> new Date(b.updatedAt)-new Date(a.updatedAt)).slice(0,5);
+  const recentQuizzes = [...quizScores].reverse().slice(0,3);
+  const catCounts = {};
+  notes.forEach(n=>{ catCounts[n.category] = (catCounts[n.category]||0)+1; });
+  const topCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  return (
+    <div>
+      <div className="grid-stats">
+        <StatCard value={total} label="📚 Total Notes" />
+        <StatCard value={totalQuizQuestions} label="🎯 Total Quiz Questions" />
+        <StatCard value={progress+'%'} label="📖 Study Progress" />
+        <StatCard value={streak.count+'🔥'} label="🔥 Study Streak" />
+        <StatCard value={important} label="⭐ Important Notes" />
+        <StatCard value={unread} label="🔄 Notes to Review" />
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <div className="panel-title"><span className="dot"></span> پیشرفت Security+</div>
+          <span className="ltr" style={{fontSize:12, color:'var(--text-dim)'}}>{reviewed}/{total} · Lv.{level.level} {level.name}</span>
+        </div>
+        <div className="progress-track"><div className="progress-fill" style={{width:progress+'%'}}></div></div>
+      </div>
+
+      <div style={{display:'grid', gridTemplateColumns:'1.3fr 1fr', gap:16}} className="dash-cols">
+        <div className="panel">
+          <div className="panel-head"><div className="panel-title"><span className="dot"></span> آخرین یادداشت‌ها</div>
+            <button className="icon-btn" onClick={()=>goTab('notes')}>مشاهده همه</button>
+          </div>
+          {recent.length===0 ? <EmptyState text="هنوز یادداشتی ثبت نشده." /> :
+            recent.map(n=>(
+              <div key={n.id} className="review-card" style={{padding:'12px 14px'}}>
+                <div>
+                  <div className="ltr" style={{fontWeight:700, color:'var(--accent)', fontSize:13.5}}>{n.term}</div>
+                  <div style={{fontSize:11.5, color:'var(--text-faint)'}}>{n.meaning} · {n.category}</div>
+                </div>
+                <Badge meta={metaOf(IMPORTANCE, n.importance)} />
+              </div>
+            ))
+          }
+          <div className="panel-head" style={{marginTop:16}}><div className="panel-title"><span className="dot"></span> آخرین آزمون‌ها</div>
+            <button className="icon-btn" onClick={()=>goTab('quiz')}>Continue Learning ▶</button>
+          </div>
+          {recentQuizzes.length===0 ? <EmptyState text="هنوز آزمونی انجام نشده." /> :
+            recentQuizzes.map((q,i)=>(
+              <div key={i} className="review-card" style={{padding:'10px 14px'}}>
+                <span className="ltr" style={{fontSize:11.5, color:'var(--text-faint)'}}>{fmtDate(q.date)}</span>
+                <span className="ltr" style={{fontWeight:700, color:'var(--accent)'}}>{q.score}/{q.total}</span>
+              </div>
+            ))
+          }
+        </div>
+        <div className="panel">
+          <div className="panel-head"><div className="panel-title"><span className="dot"></span> موضوعات مهم</div></div>
+          {topCats.length===0 ? <EmptyState text="داده‌ای موجود نیست." /> :
+            topCats.map(([c,count])=>(
+              <div key={c} style={{marginBottom:12}}>
+                <div style={{display:'flex', justifyContent:'space-between', fontSize:12.5, marginBottom:5}}>
+                  <span>{c}</span><span className="ltr" style={{color:'var(--text-faint)'}}>{count}</span>
+                </div>
+                <div className="progress-track" style={{height:6}}>
+                  <div className="progress-fill" style={{width:Math.round((count/total)*100)+'%'}}></div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({glyph='◌', text}){
+  return (
+    <div className="empty-state">
+      <div className="glyph">{glyph}</div>
+      <div style={{fontSize:13}}>{text}</div>
+    </div>
+  );
+}
+
+function NotesPage({notes, categories, allTags, onView, onEdit, onDelete, searchRef}){
+  const [q, setQ] = useState('');
+  const [cat, setCat] = useState('');
+  const [imp, setImp] = useState('');
+  const [status, setStatus] = useState('');
+  const [tag, setTag] = useState('');
+  const [quizOnly, setQuizOnly] = useState('');
+  const [sortBy, setSortBy] = useState('updated-desc');
+
+  const filtered = useMemo(()=>{
+    let list = notes.filter(n=>{
+      const hay = (n.term+' '+n.meaning+' '+n.concept+' '+n.tags.join(' ')).toLowerCase();
+      const matchQ = !q || hay.includes(q.toLowerCase());
+      const matchCat = !cat || n.category===cat;
+      const matchImp = !imp || n.importance===imp;
+      const matchStatus = !status || n.reviewStatus===status;
+      const matchTag = !tag || n.tags.includes(tag);
+      const matchQuiz = !quizOnly || (quizOnly==='yes' ? !!n.inQuiz : !n.inQuiz);
+      return matchQ && matchCat && matchImp && matchStatus && matchTag && matchQuiz;
+    });
+    switch(sortBy){
+      case 'updated-desc': list.sort((a,b)=> new Date(b.updatedAt)-new Date(a.updatedAt)); break;
+      case 'updated-asc': list.sort((a,b)=> new Date(a.updatedAt)-new Date(b.updatedAt)); break;
+      case 'term-asc': list.sort((a,b)=> a.term.localeCompare(b.term)); break;
+      case 'importance': { const rank={critical:0,important:1,normal:2}; list.sort((a,b)=> rank[a.importance]-rank[b.importance]); break; }
+    }
+    return list;
+  },[notes,q,cat,imp,status,tag,quizOnly,sortBy]);
+
+  return (
+    <div>
+      <div className="filters-bar">
+        <div className="search-wide search-quick">
+          <input ref={searchRef} placeholder="جستجو در اصطلاح، معنی، مفهوم یا Tag..." value={q} onChange={e=>setQ(e.target.value)} />
+          <span className="ic">⌕</span>
+        </div>
+        <select value={cat} onChange={e=>setCat(e.target.value)}>
+          <option value="">همه دسته‌بندی‌ها</option>
+          {categories.map(c=> <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={imp} onChange={e=>setImp(e.target.value)}>
+          <option value="">همه سطوح اهمیت</option>
+          {IMPORTANCE.map(i=> <option key={i.v} value={i.v}>{i.label}</option>)}
+        </select>
+        <select value={status} onChange={e=>setStatus(e.target.value)}>
+          <option value="">همه وضعیت‌ها</option>
+          {REVIEW_STATUS.map(i=> <option key={i.v} value={i.v}>{i.label}</option>)}
+        </select>
+        <select value={tag} onChange={e=>setTag(e.target.value)}>
+          <option value="">همه Tagها</option>
+          {allTags.map(t=> <option key={t} value={t}>#{t}</option>)}
+        </select>
+        <select value={quizOnly} onChange={e=>setQuizOnly(e.target.value)}>
+          <option value="">Quiz: همه</option>
+          <option value="yes">🎯 فقط در Quiz Bank</option>
+          <option value="no">خارج از Quiz Bank</option>
+        </select>
+        <select value={sortBy} onChange={e=>setSortBy(e.target.value)}>
+          <option value="updated-desc">جدیدترین ویرایش</option>
+          <option value="updated-asc">قدیمی‌ترین ویرایش</option>
+          <option value="term-asc">الفبایی (A-Z)</option>
+          <option value="importance">بر اساس اهمیت</option>
+        </select>
+      </div>
+      <div style={{fontSize:12, color:'var(--text-faint)', marginBottom:12}} className="ltr">{filtered.length} / {notes.length} results</div>
+      {filtered.length===0 ? <EmptyState glyph="🗂" text="یادداشتی با این فیلترها پیدا نشد." /> : (
+        <div className="notes-grid">
+          {filtered.map(n=> <NoteCard key={n.id} note={n} onView={onView} onEdit={onEdit} onDelete={onDelete} onTagClick={setTag} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReviewPage({notes, onMark}){
+  const due = notes.filter(isDue)
+    .sort((a,b)=>{
+      const rank={critical:0,important:1,normal:2};
+      if(rank[a.importance]!==rank[b.importance]) return rank[a.importance]-rank[b.importance];
+      return new Date(a.srsDue||a.updatedAt)-new Date(b.srsDue||b.updatedAt);
+    });
+  const upcoming = notes.filter(n=>!isDue(n))
+    .sort((a,b)=> new Date(a.srsDue)-new Date(b.srsDue)).slice(0,5);
+  const mastered = notes.filter(n=>n.reviewStatus==='reviewed').length;
+
+  return (
+    <div>
+      <div className="panel" style={{marginBottom:20}}>
+        <div className="panel-title" style={{marginBottom:6}}><span className="dot"></span> امروز چه چیزهایی باید مرور کنم؟</div>
+        <div style={{fontSize:12.5, color:'var(--text-dim)'}}>
+          {due.length===0 ? 'همه یادداشت‌ها مرور شده‌اند. عالی است! 🎉' : `${due.length} یادداشت برای مرور امروز آماده است (بر اساس زمان‌بندی Spaced Repetition).`}
+        </div>
+        <div className="ltr" style={{fontSize:11, color:'var(--text-faint)', marginTop:8}}>🆕 New: {notes.filter(n=>!n.srsReps).length} · 🔄 Review: {due.length} · ✅ Mastered: {mastered}</div>
+      </div>
+      {due.length===0 ? <EmptyState glyph="✅" text="چیزی برای مرور نیست." /> : due.map(n=>(
+        <div key={n.id} className="review-card">
+          <div style={{flex:1, minWidth:200}}>
+            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:4}}>
+              <span className="ltr" style={{fontWeight:700, color:'var(--accent)', fontSize:14.5}}>{n.term}</span>
+              <Badge meta={metaOf(IMPORTANCE, n.importance)} />
+            </div>
+            <div style={{fontSize:12, color:'var(--text-dim)'}}>{n.meaning} — {n.concept ? (n.concept.slice(0,70)+(n.concept.length>70?'…':'')) : ''}</div>
+          </div>
+          <div className="review-actions">
+            <button className="btn-know" onClick={()=>onMark(n.id,'know')}>✓ بلدم</button>
+            <button className="btn-again" onClick={()=>onMark(n.id,'again')}>↻ نیاز به مرور دارم</button>
+          </div>
+        </div>
+      ))}
+      {upcoming.length>0 && (
+        <div className="panel" style={{marginTop:20}}>
+          <div className="panel-title" style={{marginBottom:10}}><span className="dot"></span> مرورهای بعدی</div>
+          {upcoming.map(n=>(
+            <div key={n.id} style={{display:'flex', justifyContent:'space-between', fontSize:12.5, padding:'7px 0', borderBottom:'1px solid var(--border-soft)'}}>
+              <span className="ltr" style={{color:'var(--text)'}}>{n.term}</span>
+              <span className="ltr" style={{color:'var(--text-faint)'}}>{daysUntil(n.srsDue)} روز دیگر</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FlashcardPage({notes, onGrade}){
+  const dueDeck = useMemo(()=> notes.filter(isDue), [notes]);
+  const deck = dueDeck.length ? dueDeck : notes; // fall back to full deck if nothing is due yet
+  const [pos, setPos] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [sessionDone, setSessionDone] = useState(0);
+
+  if(notes.length===0){
+    return <EmptyState glyph="🃏" text="اول چند یادداشت اضافه کن تا بتونی با Flashcard تمرین کنی." />;
+  }
+  if(pos>=deck.length){
+    return (
+      <div className="quiz-box" style={{textAlign:'center'}}>
+        <div style={{fontSize:38, marginBottom:8}}>🎉</div>
+        <div style={{fontSize:18, fontWeight:800, marginBottom:6}}>عالی بود!</div>
+        <div style={{color:'var(--text-dim)', fontSize:13, marginBottom:20}}>{sessionDone} کارت مرور شد.</div>
+        <button className="btn btn-primary" style={{width:'100%', maxWidth:220}} onClick={()=>{setPos(0); setSessionDone(0);}}>از اول</button>
+      </div>
+    );
+  }
+
+  const card = deck[pos];
+  const advance = (grade)=>{
+    onGrade(card.id, grade);
+    setSessionDone(s=>s+1);
+    setFlipped(false);
+    setPos(p=>p+1);
+  };
+
+  return (
+    <div className="quiz-box" style={{maxWidth:520}}>
+      <div className="quiz-progress ltr">Card {pos+1} / {deck.length}{dueDeck.length===0 ? ' (no cards due — full deck)' : ''}</div>
+      <div
+        onClick={()=>setFlipped(f=>!f)}
+        style={{
+          cursor:'pointer', minHeight:180, borderRadius:12, border:'1px solid var(--border-soft)',
+          background:'var(--surface-2)', display:'flex', alignItems:'center', justifyContent:'center',
+          flexDirection:'column', padding:24, textAlign:'center', marginTop:8, marginBottom:16,
+        }}
+        className="note-saved-pop"
+        key={card.id+String(flipped)}
+      >
+        {!flipped ? (
+          <div className="ltr" style={{fontSize:22, fontWeight:800, color:'var(--accent)'}}>{card.term}</div>
+        ) : (
+          <div>
+            <div style={{fontSize:16, fontWeight:800, marginBottom:8}}>{card.meaning}</div>
+            {card.concept && <div style={{fontSize:12.5, color:'var(--text-dim)', lineHeight:1.8}}>{card.concept}</div>}
+          </div>
+        )}
+        <div style={{fontSize:10.5, color:'var(--text-faint)', marginTop:14}} className="ltr">{flipped ? 'برای برگشت کلیک کن' : 'برای دیدن جواب کلیک کن'}</div>
+      </div>
+      {flipped && (
+        <div style={{display:'flex', gap:10}}>
+          <button className="btn-know" style={{flex:1}} onClick={()=>advance('know')}>✓ بلدم</button>
+          <button className="btn-again" style={{flex:1}} onClick={()=>advance('again')}>↻ نیاز به مرور دارم</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function buildQuizQuestions(notes, count){
+  // Prefer notes the user explicitly marked "افزودن به آزمون" (Quiz Bank);
+  // fall back to all notes with a meaning if none have been marked yet.
+  const marked = notes.filter(n=>n.inQuiz && n.meaning);
+  const pool = marked.length ? marked : notes.filter(n=>n.meaning);
+  const shuffled = [...pool].sort(()=>Math.random()-0.5).slice(0, Math.min(count, pool.length));
+  return shuffled.map(n=>{
+    if(n.quizQuestion && n.quizOptions && n.quizOptions.every(o=>o && o.trim())){
+      return {
+        noteId:n.id, term:n.term,
+        question:n.quizQuestion,
+        options:n.quizOptions,
+        correctIndex:n.quizCorrectIndex,
+        explanation:n.quizExplanation || (n.concept||''),
+      };
+    }
+    // auto-generate from meaning
+    const distractors = notes.filter(x=>x.id!==n.id && x.meaning).map(x=>x.meaning);
+    const wrongs = [...distractors].sort(()=>Math.random()-0.5).slice(0,3);
+    const options = [...wrongs, n.meaning].sort(()=>Math.random()-0.5);
+    return {
+      noteId:n.id, term:n.term,
+      question: `معنی یا مفهوم اصطلاح «${n.term}» چیست؟`,
+      options,
+      correctIndex: options.indexOf(n.meaning),
+      explanation: n.concept || '',
+    };
+  });
+}
+
+function QuizPage({notes, onFinish, onCorrect}){
+  const [started, setStarted] = useState(false);
+  const [qCount, setQCount] = useState(5);
+  const [questions, setQuestions] = useState([]);
+  const [idx, setIdx] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+
+  const quizBankCount = notes.filter(n=>n.inQuiz).length;
+
+  const start = ()=>{
+    if(notes.length<2){ alert('برای کوییز حداقل به ۲ یادداشت نیاز داری.'); return; }
+    setQuestions(buildQuizQuestions(notes, qCount));
+    setIdx(0); setSelected(null); setScore(0); setDone(false); setStarted(true);
+  };
+  const pick = (i)=>{
+    if(selected!==null) return;
+    setSelected(i);
+    if(i===questions[idx].correctIndex){
+      setScore(s=>s+1);
+      if(onCorrect) onCorrect();
+    }
+  };
+  const next = ()=>{
+    if(idx+1<questions.length){ setIdx(idx+1); setSelected(null); }
+    else{
+      setDone(true);
+      onFinish({date:nowISO(), score: score + (selected===questions[idx].correctIndex?0:0), total: questions.length});
+    }
+  };
+
+  if(!started){
+    return (
+      <div className="quiz-box" style={{textAlign:'center'}}>
+        <div style={{fontSize:34, marginBottom:10}}>🧪</div>
+        <div style={{fontWeight:800, fontSize:17, marginBottom:8}}>Quiz Mode</div>
+        <div style={{color:'var(--text-dim)', fontSize:13, marginBottom:8, lineHeight:1.8}}>
+          دانش خودت را از مفاهیم ثبت‌شده بسنج. سؤالات از روی یادداشت‌های تو (یا به‌صورت خودکار از معنی اصطلاحات) ساخته می‌شوند.
+        </div>
+        <div className="ltr" style={{color:'var(--text-faint)', fontSize:11.5, marginBottom:20}}>
+          {quizBankCount>0 ? `${quizBankCount} notes in Quiz Bank` : 'No notes marked for Quiz Bank yet — using all notes'}
+        </div>
+        <div style={{maxWidth:220, margin:'0 auto 18px'}}>
+          <label>تعداد سؤالات</label>
+          <select value={qCount} onChange={e=>setQCount(Number(e.target.value))}>
+            <option value={3}>۳ سؤال</option>
+            <option value={5}>۵ سؤال</option>
+            <option value={10}>۱۰ سؤال</option>
+          </select>
+        </div>
+        <button className="btn btn-primary" style={{width:'100%', maxWidth:220}} onClick={start}>شروع کوییز</button>
+      </div>
+    );
+  }
+
+  if(done){
+    const pct = Math.round((score/questions.length)*100);
+    return (
+      <div className="quiz-box" style={{textAlign:'center'}}>
+        <div style={{fontSize:38, marginBottom:8}}>{pct>=80?'🏆':pct>=50?'👍':'📘'}</div>
+        <div style={{fontSize:18, fontWeight:800, marginBottom:6}}>نتیجه کوییز</div>
+        <div className="ltr" style={{fontSize:32, fontWeight:800, color:'var(--accent)', margin:'10px 0'}}>{score}/{questions.length}</div>
+        <div style={{color:'var(--text-dim)', fontSize:13, marginBottom:20}}>{pct}% پاسخ صحیح</div>
+        <button className="btn btn-primary" style={{width:'100%', maxWidth:220}} onClick={()=>setStarted(false)}>کوییز جدید</button>
+      </div>
+    );
+  }
+
+  const cur = questions[idx];
+  return (
+    <div className="quiz-box">
+      <div className="quiz-progress ltr">Question {idx+1} / {questions.length} · Score: {score}</div>
+      <div className="quiz-q">{cur.question}</div>
+      {cur.options.map((opt,i)=>{
+        let cls='quiz-opt';
+        if(selected!==null){
+          if(i===cur.correctIndex) cls+=' correct';
+          else if(i===selected) cls+=' wrong';
+        }
+        return <button key={i} className={cls} onClick={()=>pick(i)}>{String.fromCharCode(65+i)}) {opt}</button>;
+      })}
+      {selected!==null && (
+        <div>
+          {cur.explanation && <div className="quiz-explain">{cur.explanation}</div>}
+          <button className="btn btn-primary" style={{width:'100%', marginTop:16}} onClick={next}>
+            {idx+1<questions.length ? 'سؤال بعدی' : 'مشاهده نتیجه'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatsPage({notes, quizScores, xp, level, streak}){
+  const total = notes.length;
+  const reviewed = notes.filter(n=>n.reviewStatus==='reviewed').length;
+  const progress = total? Math.round((reviewed/total)*100):0;
+  const quizzesTaken = quizScores.length;
+  const totalCorrect = quizScores.reduce((s,q)=>s+q.score,0);
+  const totalQ = quizScores.reduce((s,q)=>s+q.total,0);
+  const correctPct = totalQ? Math.round((totalCorrect/totalQ)*100):0;
+  const catCounts = {};
+  notes.forEach(n=>{catCounts[n.category]=(catCounts[n.category]||0)+1;});
+  const topCat = Object.entries(catCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  return (
+    <div>
+      <div className="grid-stats">
+        <StatCard value={total} label="اصطلاحات یادگرفته‌شده" />
+        <StatCard value={quizzesTaken} label="کوییزهای حل‌شده" />
+        <StatCard value={correctPct+'%'} label="درصد پاسخ صحیح" />
+        <StatCard value={topCat ? topCat[0] : '—'} label="بیشترین موضوع مطالعه‌شده" />
+        <StatCard value={progress+'%'} label="میزان پیشرفت" />
+        <StatCard value={'⭐ '+xp} label={'XP — Level '+level.level+' '+level.name} />
+        <StatCard value={streak.count+'🔥'} label="Study Streak" />
+      </div>
+      <DomainMap notes={notes} />
+      <CalendarHeatmap notes={notes} quizScores={quizScores} />
+      <div className="panel">
+        <div className="panel-title" style={{marginBottom:14}}><span className="dot"></span> تاریخچه کوییزها</div>
+        {quizScores.length===0 ? <EmptyState glyph="📊" text="هنوز کوییزی انجام نداده‌ای." /> : (
+          [...quizScores].reverse().slice(0,12).map((q,i)=>(
+            <div key={i} className="review-card" style={{padding:'10px 14px'}}>
+              <span className="ltr" style={{fontSize:11.5, color:'var(--text-faint)'}}>{fmtDate(q.date)}</span>
+              <span className="ltr" style={{fontWeight:700, color:'var(--accent)'}}>{q.score}/{q.total}</span>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DataPage({notes, quizScores, onImport, showToast, backupNow}){
+  const fileRef = useRef(null);
+  const exportJSON = ()=>{
+    const blob = new Blob([JSON.stringify({notes, quizScores}, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'security-plus-notes.json';
+    a.click();
+    showToast('فایل JSON دانلود شد ✓');
+  };
+  const exportCSV = ()=>{
+    const headers = ['term','meaning','concept','example','defense','examTip','category','tags','importance','reviewStatus','createdAt','updatedAt'];
+    const rows = notes.map(n=> headers.map(h=>{
+      let v = h==='tags' ? (n.tags||[]).join('|') : (n[h]||'');
+      v = String(v).replace(/"/g,'""');
+      return `"${v}"`;
+    }).join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob(["\uFEFF"+csv], {type:'text/csv;charset=utf-8;'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'security-plus-notes.csv';
+    a.click();
+    showToast('فایل CSV دانلود شد ✓');
+  };
+  const handleFile = (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      try{
+        const parsed = JSON.parse(ev.target.result);
+        const importedNotes = (parsed.notes||[]).map(n=>migrateSrs({...n, id: uid()}));
+        onImport(importedNotes, parsed.quizScores||[]);
+        showToast(`${importedNotes.length} یادداشت با موفقیت وارد شد ✓`);
+      }catch(err){
+        showToast('فایل JSON نامعتبر است', 'err');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  return (
+    <div>
+      <div className="panel">
+        <div className="panel-title" style={{marginBottom:14}}><span className="dot"></span> Export</div>
+        <div style={{display:'flex', gap:12, flexWrap:'wrap'}}>
+          <button className="btn btn-primary" style={{flex:'1 1 200px'}} onClick={exportJSON}>⬇ Export به JSON</button>
+          <button className="btn" style={{flex:'1 1 200px', background:'var(--surface-2)', color:'var(--text)'}} onClick={exportCSV}>⬇ Export به CSV</button>
+        </div>
+      </div>
+      <div className="panel">
+        <div className="panel-title" style={{marginBottom:14}}><span className="dot"></span> Import / Restore</div>
+        <p style={{fontSize:12.5, color:'var(--text-dim)', marginBottom:12}}>فایل JSON که قبلاً از همین برنامه Export کرده‌ای را بارگذاری کن. یادداشت‌های جدید به لیست فعلی اضافه می‌شوند.</p>
+        <div style={{background:'var(--surface-2)', border:'1px dashed var(--border)', borderRadius:10, padding:'10px 12px', marginBottom:12, fontSize:12, color:'var(--warn)'}}>
+          ⚠️ پیشنهاد می‌شود قبل از Import، از اطلاعات فعلی خودت یک Backup بگیری.
+          <button className="icon-btn" style={{marginRight:10}} onClick={backupNow}>🗄 گرفتن Backup الان</button>
+        </div>
+        <input type="file" accept=".json,application/json" ref={fileRef} onChange={handleFile} />
+      </div>
+      <div className="panel">
+        <div className="panel-title" style={{marginBottom:10}}><span className="dot"></span> وضعیت ذخیره‌سازی</div>
+        <p style={{fontSize:12.5, color:'var(--text-dim)', lineHeight:1.8}}>
+          داده‌های تو به‌صورت خودکار و امن ذخیره می‌شوند و پس از بستن یا رفرش صفحه از بین نمی‌روند.
+          تعداد یادداشت‌های فعلی: <span className="ltr" style={{color:'var(--accent)', fontWeight:700}}>{notes.length}</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- App ---------------- */
+const NAV = [
+  {v:'dashboard', label:'داشبورد', icon:'▣'},
+  {v:'notes', label:'یادداشت‌ها', icon:'▤'},
+  {v:'add', label:'افزودن', icon:'✚'},
+  {v:'review', label:'مرور', icon:'↻'},
+  {v:'flashcards', label:'Flashcard', icon:'🃏'},
+  {v:'quiz', label:'Quiz', icon:'✎'},
+  {v:'stats', label:'آمار', icon:'▥'},
+  {v:'data', label:'Import/Export', icon:'⇅'},
+];
+const MOBILE_NAV = ['dashboard','notes','flashcards','quiz','stats'];
+
+function App(){
+  const [loaded, setLoaded] = useState(false);
+  const [notes, setNotes] = useState([]);
+  const [quizScores, setQuizScores] = useState([]);
+  const [xp, setXp] = useState(0);
+  const [streak, setStreak] = useState({count:0, lastDate:null});
+  const [theme, setTheme] = useState('dark');
+  const [xpPops, setXpPops] = useState([]); // floating +XP animations
+  const [tab, setTab] = useState('dashboard');
+  const [modalNote, setModalNote] = useState(undefined); // undefined=closed, null=new, obj=edit
+  const [viewNote, setViewNote] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [toast, showToast] = useToast();
+  const searchRef = useRef(null);
+
+  useEffect(()=>{
+    // Synchronous load from localStorage on startup.
+    const data = loadData();
+    setNotes(data.notes);
+    setQuizScores(data.quizScores);
+    setXp(data.xp);
+    // Study Streak: bump using the real calendar date the moment the app opens.
+    setStreak(bumpStreak(data.streak));
+    setTheme(data.theme);
+    setLoaded(true);
+  },[]);
+
+  useEffect(()=>{
+    if(!loaded) return;
+    // Persist immediately (localStorage.setItem is synchronous) any time
+    // notes, quizScores, xp, streak, or theme change — covers add/edit/delete/import/quiz/theme.
+    persistData(notes, quizScores, xp, streak, theme);
+  },[notes, quizScores, xp, streak, theme, loaded]);
+
+  useEffect(()=>{
+    // Theme is applied via a data-attribute so every var(--*) in the stylesheet
+    // swaps automatically — see the [data-theme="light"] block in <style>.
+    document.documentElement.setAttribute('data-theme', theme);
+  },[theme]);
+
+  // Global keyboard shortcuts: N=new note, F=flashcards, Q=quiz, R=review,
+  // /=focus search (on Notes page), Esc=close any open modal.
+  useEffect(()=>{
+    const handler = (e)=>{
+      const tagName = (e.target.tagName||'').toLowerCase();
+      const typing = tagName==='input' || tagName==='textarea' || tagName==='select' || e.target.isContentEditable;
+      if(e.key==='Escape'){
+        setModalNote(undefined); setViewNote(null); setDeleteTarget(null);
+        return;
+      }
+      if(typing) return;
+      if(e.key==='/'){ e.preventDefault(); setTab('notes'); setTimeout(()=> searchRef.current && searchRef.current.focus(), 50); return; }
+      if(e.key==='n' || e.key==='N'){ setModalNote(null); return; }
+      if(e.key==='f' || e.key==='F'){ setTab('flashcards'); return; }
+      if(e.key==='q' || e.key==='Q'){ setTab('quiz'); return; }
+      if(e.key==='r' || e.key==='R'){ setTab('review'); return; }
+    };
+    window.addEventListener('keydown', handler);
+    return ()=> window.removeEventListener('keydown', handler);
+  },[]);
+
+  // Awards XP and shows a short floating "+N XP" animation near the top of the screen.
+  const awardXP = useCallback((amount, label)=>{
+    setXp(x=> x + amount);
+    const id = uid();
+    setXpPops(p=> [...p, {id, amount, label}]);
+    setTimeout(()=> setXpPops(p=> p.filter(x=>x.id!==id)), 1000);
+  },[]);
+
+  const printNotes = ()=> window.print();
+
+  const categories = useMemo(()=>{
+    const set = new Set(DEFAULT_CATEGORIES);
+    notes.forEach(n=> set.add(n.category));
+    return Array.from(set);
+  },[notes]);
+  const allTags = useMemo(()=>{
+    const set = new Set();
+    notes.forEach(n=> (n.tags||[]).forEach(t=>set.add(t)));
+    return Array.from(set);
+  },[notes]);
+
+  const saveNote = (formData)=>{
+    if(modalNote && modalNote.id){
+      setNotes(ns=> ns.map(n=> n.id===modalNote.id ? {...n, ...formData, updatedAt:nowISO()} : n));
+      showToast('یادداشت با موفقیت ویرایش شد ✓');
+    }else{
+      const n = {...formData, ...defaultSrs(), id:uid(), createdAt:nowISO(), updatedAt:nowISO()};
+      setNotes(ns=> [n, ...ns]);
+      showToast('یادداشت جدید ذخیره شد ✓');
+      awardXP(10, 'Add Note');
+    }
+    setModalNote(undefined);
+    setTab(t=> t==='add' ? 'notes' : t);
+  };
+  // Grades a note via the spaced-repetition engine: 'know' grows the interval,
+  // 'again' resets it. Used by both the Review page and Flashcard mode.
+  const gradeNote = (id, grade)=>{
+    setNotes(ns=> ns.map(n=> n.id===id ? {...n, ...srsGrade(n, grade)} : n));
+    showToast(grade==='know' ? 'عالی! به‌عنوان بلد شده علامت خورد ✓' : 'برای مرور بعدی نشان‌گذاری شد ↻');
+    awardXP(5, 'Review Note');
+  };
+  const confirmDelete = ()=>{
+    setNotes(ns=> ns.filter(n=> n.id!==deleteTarget.id));
+    showToast('یادداشت حذف شد 🗑');
+    setDeleteTarget(null);
+  };
+  const handleImport = (importedNotes, importedScores)=>{
+    setNotes(ns=> [...importedNotes, ...ns]);
+    if(importedScores && importedScores.length) setQuizScores(qs=> [...qs, ...importedScores]);
+  };
+  const handleQuizFinish = (result)=>{
+    setQuizScores(qs=> [...qs, result]);
+    awardXP(50, 'Complete Quiz');
+  };
+  const backupNow = ()=>{
+    try{
+      const payload = {notes, quizScores, backupAt: nowISO()};
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+      a.href = URL.createObjectURL(blob);
+      a.download = `security-plus-backup-${stamp}.json`;
+      a.click();
+      showToast('پشتیبان‌گیری با موفقیت دانلود شد ✓');
+    }catch(e){
+      console.error('backup failed', e);
+      showToast('خطا در پشتیبان‌گیری', 'err');
+    }
+  };
+
+  if(!loaded){
+    return <div className="app" style={{alignItems:'center', justifyContent:'center', width:'100%'}}><div className="spinner"></div></div>;
+  }
+
+  const activeMeta = NAV.find(n=>n.v===tab);
+  const lvl = levelInfo(xp);
+
+  return (
+    <div className="app">
+      <BgParticles />
+      <aside className="sidebar">
+        <div className="brand">
+          <div className="brand-mark">S+</div>
+          <div>
+            <div className="brand-title">SecNote</div>
+            <div className="brand-sub ltr">SECURITY+ LEARNING HUB</div>
+          </div>
+        </div>
+
+        <div className="level-chip">
+          <div className="level-ring" style={{'--pct':lvl.pct}}>
+            <div className="level-ring-inner">{lvl.level}</div>
+          </div>
+          <div style={{flex:1, minWidth:0}}>
+            <div style={{fontSize:12, fontWeight:700}}>{lvl.name}</div>
+            <div className="ltr" style={{fontSize:10.5, color:'var(--text-faint)'}}>⭐ {xp} XP</div>
+            <div className="xp-bar-track"><div className="xp-bar-fill" style={{width:lvl.pct+'%'}}></div></div>
+          </div>
+        </div>
+        <div style={{display:'flex', alignItems:'center', gap:6, padding:'2px 8px 14px', fontSize:12.5, color:'var(--text-dim)'}}>
+          <span className="streak-flame">🔥</span> {streak.count} {streak.count===1?'Day':'Days'} Streak
+        </div>
+
+        {NAV.filter(n=>n.v!=='add').map(item=>(
+          <button key={item.v} className={"nav-item " + (tab===item.v?'active':'')} onClick={()=>setTab(item.v)}>
+            <span className="nav-icon">{item.icon}</span>{item.label}
+            {item.v==='review' && notes.filter(isDue).length>0 &&
+              <span className="nav-badge ltr">{notes.filter(isDue).length}</span>}
+          </button>
+        ))}
+        <div className="sidebar-footer">
+          <button className="fab-add" onClick={()=>setModalNote(null)}>✚ افزودن یادداشت</button>
+          <button className="btn" style={{width:'100%', marginTop:8, background:'var(--surface-2)', color:'var(--text)'}} onClick={backupNow}>🗄 Backup</button>
+          <div style={{display:'flex', gap:8, marginTop:8}}>
+            <button className="btn" style={{flex:1, background:'var(--surface-2)', color:'var(--text)'}} onClick={()=>setTheme(t=> t==='dark'?'light':'dark')}>
+              {theme==='dark' ? '☀️ Light' : '🌙 Dark'}
+            </button>
+            <button className="btn" style={{flex:1, background:'var(--surface-2)', color:'var(--text)'}} onClick={printNotes}>🖨 PDF</button>
+          </div>
+        </div>
+      </aside>
+
+      <main className="main">
+        <div className="topbar">
+          <div>
+            <div className="page-title">{activeMeta ? activeMeta.label : ''}</div>
+            <div className="page-sub ltr">SECNOTE // {tab.toUpperCase()}</div>
+          </div>
+        </div>
+
+        <div key={tab} className="page-fade">
+          {tab==='dashboard' && <DashboardPage notes={notes} categories={categories} quizScores={quizScores} xp={xp} level={lvl} streak={streak} goTab={setTab} />}
+          {tab==='notes' && <NotesPage notes={notes} categories={categories} allTags={allTags} searchRef={searchRef}
+              onView={setViewNote} onEdit={(n)=>setModalNote(n)} onDelete={setDeleteTarget} />}
+          {tab==='review' && <ReviewPage notes={notes} onMark={gradeNote} />}
+          {tab==='flashcards' && <FlashcardPage notes={notes} onGrade={gradeNote} />}
+          {tab==='quiz' && <QuizPage notes={notes} onFinish={handleQuizFinish} onCorrect={()=>awardXP(20,'Correct Answer')} />}
+          {tab==='stats' && <StatsPage notes={notes} quizScores={quizScores} xp={xp} level={lvl} streak={streak} />}
+          {tab==='data' && <DataPage notes={notes} quizScores={quizScores} onImport={handleImport} showToast={showToast} backupNow={backupNow} />}
+        </div>
+      </main>
+
+      <div style={{position:'fixed', top:14, left:'50%', transform:'translateX(-50%)', zIndex:300, pointerEvents:'none'}}>
+        {xpPops.map(p=> <div key={p.id} className="xp-float">+{p.amount} XP</div>)}
+      </div>
+
+      <div className="shortcuts-hint glass" style={{padding:'8px 12px', borderRadius:10, fontSize:11, color:'var(--text-faint)', display:'flex', gap:8}}>
+        <span className="kbd">N</span> Note
+        <span className="kbd">F</span> Flashcards
+        <span className="kbd">Q</span> Quiz
+        <span className="kbd">R</span> Review
+        <span className="kbd">/</span> Search
+      </div>
+
+      <nav className="bottom-nav">
+        {MOBILE_NAV.map(v=>{
+          const item = NAV.find(n=>n.v===v);
+          return (
+            <button key={v} className={"bn-item " + (tab===v?'active':'')} onClick={()=>setTab(v)}>
+              <span className="bn-icon">{item.icon}</span>{item.label}
+            </button>
+          );
+        })}
+      </nav>
+      <button className="fab-mobile" onClick={()=>setModalNote(null)}>✚</button>
+
+      {modalNote!==undefined && (
+        <NoteFormModal
+          initial={modalNote}
+          categories={categories}
+          onClose={()=>setModalNote(undefined)}
+          onSave={saveNote}
+        />
+      )}
+      {viewNote && (
+        <NoteDetailModal note={viewNote} allNotes={notes} onClose={()=>setViewNote(null)} onEdit={(n)=>{setViewNote(null); setModalNote(n);}} onOpenTerm={(n)=>setViewNote(n)} />
+      )}
+      {deleteTarget && (
+        <ConfirmModal
+          title="حذف یادداشت"
+          body={`آیا مطمئنی می‌خواهی یادداشت «${deleteTarget.term}» را حذف کنی؟ این عمل قابل بازگشت نیست.`}
+          onCancel={()=>setDeleteTarget(null)}
+          onConfirm={confirmDelete}
+          danger
+        />
+      )}
+      {toast && <div className={"toast " + (toast.type==='err'?'err':'')}>{toast.msg}</div>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
